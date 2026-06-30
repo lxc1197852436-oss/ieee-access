@@ -1,0 +1,25 @@
+{
+  "dataset": "/Users/xingchengli/Documents/New project/vpp-ledrl-thesis-system/data/processed/china_vpp_priority1_guangdong_sample.csv",
+  "rows": 2880,
+  "region": "广东省",
+  "time_range": [
+    "2025-07-01 00:00:00",
+    "2025-07-30 23:45:00"
+  ],
+  "price_calibration_yuan_mwh": {
+    "min": 68.0,
+    "max": 525.0,
+    "storage_day_ahead_spread_reference": 167.0
+  },
+  "background_calibration": {
+    "national_power_consumption_2024_100m_kwh": 98521.0,
+    "renewable_total_capacity_2024_100m_kw": 18.89,
+    "solar_total_capacity_2024_100m_kw": 8.87,
+    "wind_total_capacity_2024_100m_kw": 5.21
+  },
+  "limits": [
+    "该文件是论文优先级1样例数据集，适合跑通仿真、前端展示和方法验证。",
+    "其中价格范围由公开广东市场披露校准，负荷、光伏、温度和文本事件为仿真构造。",
+    "正式论文中应明确其为公开数据校准的仿真场景，不能称为真实VPP运行数据。"
+  ]
+}

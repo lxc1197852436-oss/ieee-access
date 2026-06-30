@@ -1,0 +1,3 @@
+﻿region,wind_utilization_2024_pct,solar_utilization_2024_pct,source_id,note
+全国,95.9,96.8,nea_2024_renewable_summary,国家能源局2024年可再生能源并网运行情况，全国平均利用率；用于替代省级消纳表作为权威背景校准。
+广东省样例场景,,96.8,model_derived_proxy,省级逐时消纳压力不使用外部表，改由VPP环境中的光伏剩余功率与弃光惩罚项动态刻画。

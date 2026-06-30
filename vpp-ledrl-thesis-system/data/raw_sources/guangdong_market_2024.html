@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>储界网</title>
+  <script src="/cxw/res/scripts/grey.js"></script>
+  <script type="text/javascript" src="/cxw/res/js/jquery-x.min.js"></script>
+  <script type="text/javascript" src="/cxw/res/js/a.whir_menu.2.0.js"></script>
+  <script type="text/javascript" src="/cxw/res/js/a.whir.search.js"></script>
+  <script type="text/javascript" src="/cxw/res/js/jquery.slick.js"></script>
+
+
+  <script type="text/javascript" src="/cxw/res/js/jquery.liMarquee.js"></script>
+  <script type="text/javascript" src="/cxw/res/js/jquery.bxslider.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="/cxw/res/css/responsive2.0.css" />
+  <link rel="stylesheet" type="text/css" href="/cxw/res/css/slick.css" />
+  <link rel="stylesheet" type="text/css" href="/cxw/res/css/css_whir.css" />
+  <link rel="stylesheet" type="text/css" href="/cxw/res/css/style.css" />
+
+  <script type="text/javascript" src="/cxw/res/js/Bottom002887.js"></script>
+  <script type="text/javascript" src="/cxw/res/js/countup/min.js"></script>
+  <script type="text/javascript" src="/cxw/res/js/countup/jquery.waypoints.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="/cxw/res/css/animate.css" />
+  
+  <script type="text/javascript" src="/cxw/res/js/wow.min.js"></script>
+    <script type="text/javascript">
+    var navStr = navigator.userAgent.toLowerCase();
+    if(navStr.indexOf("msie 10.0")!==-1||navStr.indexOf("rv:11.0")!==-1){grayscale(document.body);}
+</script>
+    <script>
+    if (isGrey(1)){
+      $("head").append('<style>body{filter: grayscale(100%);-webkit-filter: grayscale(100%);-moz-filter: grayscale(100%);-ms-filter: grayscale(100%);-o-filter: grayscale(100%);filter: url(desaturate.svg#grayscale);filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);-webkit-filter: grayscale(1);}</style>')
+    }
+  </script>
+  <script>
+    if (!(/msie [6|7|8|9]/i.test(navigator.userAgent))) {
+      new WOW().init();
+    };
+
+  </script>
+
+</head>
+<script>
+  navID= 235
+</script>
+<body>
+
+  <div class="Top002047" data-role="part">
+      <header class="auto w1440">
+                  <div class="logo">
+          <a href="/cxw/index.html"><img src="/upload/image/2024-08/col120/1722993483639.png" /></a>
+          <div class="mobile_menu"><span></span></div>
+        </div>
+        <div class="user-login wx show">
+          <div class="Floor002948">
+            <dl class="dl" id="userLogin">
+             
+            </dl>
+            <script>
+              $(".Floor002948 .slider").slick({ autoplay: false, appendArrows: $(".Floor002948 .left .btn") });
+            </script>
+          </div>
+        </div>
+        <dl class="search">
+          <dt><input type="text" class="text" id="Top002047_topKey" value="请输入关键字搜索"
+              onblur="if(this.value=='')this.value='请输入关键字搜索';$(this).css('color','#b8bdcf');"
+              onfocus="if(this.value=='请输入关键字搜索')this.value='';$(this).css('color','#000');"
+              onkeydown="entersearch_Top002047()"><input type="button" class="btn"
+              onclick="return GoSearchUrl_Top002047();" value="搜 索" /></dt>
+          
+        </dl>
+      </header>
+      <nav>
+        <div class="auto w1440 clearfix">
+          <ul class="ul clearfix menu">
+            <li id="m63"><a href="/cxw/index.html">首页</a></li>
+                <li id="m163"><a href="/cxw/col240/list">资料下载</a></li>
+                <li id="m157"><a href="/cxw/col158/list">关于我们</a></li>
+                <li id="m129"><a href="/cxw/col129/list">国内资讯</a></li>
+                <li id="m134"><a href="/cxw/col134/list">国际资讯</a></li>
+                <li id="m141"><a href="/cxw/col142/list">会议会展</a></li>
+                <li id="m150"><a href="/cxw/col236/list">政策通知</a></li>
+                <li id="m183"><a href="/cxw/col181/list">专家智库</a></li>
+          </ul>
+        </div>
+
+        <div class="w1440 auto">
+          
+        </div>
+      </nav>
+      <!--banner-->
+      <div class="auto">
+       
+        <div class="banner">
+          <ul class="ul">
+            <li style="background-image:url(https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2026/03/11/CESC2026主视觉横版1212-02_20260311141031.png);">
+              <a href="https://www.chujiewang.net/cxw/col142/5450">
+                <img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2026/03/11/CESC2026主视觉横版1212-02_20260311141031.png" /></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!--banner end-->
+      <div class="clearfix"></div>
+      <script>
+          $("#m" + navID).addClass("aon");
+        
+        //banner
+        $('.Top002047 .banner ul').bxSlider({
+          mode: 'fade',
+          auto: true,
+          controls: false
+        });
+        //判断高度
+        $(function($) {
+          $(window).on("resize", function(e) {
+            var hover_h = $(".Top002047 .hover").height()
+            var banner_h = $(".Top002047 .banner").height()
+            if (hover_h < banner_h) {
+              $(".Top002047 .hover").height(banner_h)
+            }
+            $(".Top002047 nav").attr("style", " ");
+          }).trigger("resize");
+        });
+        //移动端
+        $(".Top002047 .mobile_menu").click(function(e) {
+          $(".Top002047 nav").slideToggle(400);
+        });
+        //搜索
+        var queryKey_Top002047 = '请输入关键字搜索';
+        if (queryKey_Top002047 != "")
+          $("#Top002047_topKey").val(queryKey_Top002047);
+
+
+        function GoSearchUrl_Top002047() {
+          var searchinput = document.getElementById("Top002047_topKey");
+          if (searchinput.value == "" || searchinput.value == "请输入关键字搜索") {
+            alert("输入关键词搜索！");
+            searchinput.focus();
+            return false;
+          }
+          if (searchinput.value.length > 50) {
+            alert("输入的关键词字数不要过多！");
+            searchinput.focus();
+            return false;
+          }
+          var pattern = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）—|{}【】‘；：”“'。，、？]");
+          if (pattern.test(searchinput.value)) {
+            alert("您输入的内容存在特殊字符!");
+            searchinput.focus();
+            return false;
+          }
+          window.location = "/cxw/search?page=1&keyword=" + encodeURI(encodeURI(searchinput.value));
+          return true;
+        }
+
+        function entersearch_Top002047() {
+          //alert(dd);
+          var event = window.event || arguments.callee.caller.arguments[0];
+          if (event.keyCode == 13) {
+            GoSearchUrl_Top002047();
+          }
+        }
+
+        function checkComments_Top002047() {
+          var event = window.event || arguments.callee.caller.arguments[0];
+          //alert(event.keyCode);
+          if ((event.keyCode > 32 && event.keyCode < 48) ||
+            (event.keyCode > 57 && event.keyCode < 65) ||
+            (event.keyCode > 90 && event.keyCode < 97)
+          ) {
+            event.returnValue = false;
+          }
+        }
+
+        function stripscript(s) {
+
+          var pattern = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）&mdash;—|{}【】‘；：”“'。，、？]");
+          var rs = "";
+          for (var i = 0; i < s.length; i++) {
+            rs = rs + s.substr(i, 1).replace(pattern, '');
+          }
+
+          return rs;
+        }
+      </script>
+  </div>
+  <!--Top002047结束-->
+
+<!-- 20240806 -->
+<div class="overlay" id="overlay">
+        <div class="modal">
+          <span class="closeModal close">×</span>
+          <div class="filebox">
+          <div class="file">
+            <input id="fileInput" onclick="selectFile()" style="cursor: pointer">
+            <p align="center"><img src="/cxw/res/images/upload.png" alt="" height="60px"></p>
+          </div>
+            <p  align="center" onclick="selectFile()" id="fileupbtn" style="cursor: pointer">将文件拖到此处，或点击上传,上传的文件大小不超过30M</p>
+            </div>
+            <div class="yzm"><input type="text" id="yzm2" placeholder="请输验证码"><img src="/cxw/res/images/sendCode.gif" alt="" class="code" onclick="initUuid2()" id="code2"></div>
+            <div class="btns">
+            <button id="closeModal"  class="closeModal">取消</button>
+            <button id="uploadBtn" onclick="save2()">确认</button>
+            </div>
+        </div>
+    </div>
+    <style type="text/css">
+    .overlay .yzm input{height:48px;line-height: 48px;border: 1px solid #ccc;margin-right: 20px;background: none;text-indent: 10px;}
+    .overlay .yzm{margin-bottom: 20px;}
+    .overlay .yzm img{height: 48px;}
+  </style>
+   <script>
+        $(document).ready(function() {
+            // 点击按钮打开弹窗
+            $('#openModal').click(function() {
+                $('#overlay').fadeIn();
+            });
+
+            // 点击关闭按钮或遮罩层关闭弹窗
+            $('.closeModal').click(function() {
+                $('#overlay').fadeOut();
+            });
+        });
+    </script>
+    <style type="text/css">
+.overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .filebox{border: 1px dashed #124CA3;padding: 40px;margin-bottom: 20px;}
+        .modal {
+            background-color: #fff;
+            width: 80%;
+            max-width: 1200px;
+            margin: 10% auto;
+            padding: 30px ;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+         .modal  .close {
+            position: absolute;right: 5px;top: 0px;
+            height: 30px;line-height: 30px;
+            cursor: pointer;
+            font-size: 30px;
+        }
+        input[type="file"] {
+            margin-top: 10px;
+        }
+         .file {position: relative;cursor: pointer;text-align: center;}
+        .file input{position: absolute;left: 0;top: 0;width: 100%;height: 100% ;opacity: 0;}
+         .file p{margin-bottom: 30px;}
+         .btns button{display: inline-block;background: none;border-radius: 5px;padding: 0 20px;height: 40px;line-height: 40px;border: 1px solid #ccc;cursor: pointer;}
+         .btns button#uploadBtn{background: #409EFF;color: #fff;border-color:#409EFF }
+  </style>
+
+
+   <script src="/cxw/res/js/index.js"></script>
+
+<script src="/cxw/res/scripts/upload.js"></script>
+<script src="/cxw/res/scripts/tanchuang.js"></script>
+
+
+
+  <script>
+
+    var UPLOAD_FILE = '';
+    var UPLOAD_SIZE = 0;
+
+    var formId='2';
+
+    var data = {
+      siteId:2,
+    subId:0,
+    columnId:170,
+    formId:formId
+    }
+
+
+
+
+    function save2() {
+
+        // var FUJIAN = document.querySelector('#fileupbtn').file;
+         var fileUpBtn = document.getElementById('fileupbtn');
+         var fileName = fileUpBtn.innerText || fileUpBtn.textContent;
+        console.log(UPLOAD_SIZE)
+        if(UPLOAD_SIZE == null || UPLOAD_SIZE == 0){
+            alert('文件上传不能为空！');
+            return;
+        }
+        var code1 = document.getElementById("yzm2").value;
+        if (code1.trim() === '') {
+            // 如果用户名为空，显示错误消息或者执行其他逻辑
+            alert('请输入验证码！');
+            return; // 可以根据实际需求选择是否终止操作
+        }
+        if (UPLOAD_FILE == 0) {
+            // 如果用户名为空，显示错误消息或者执行其他逻辑
+            alert('上传的文件大小不超过30M，请重新上传！');
+            return; // 可以根据实际需求选择是否终止操作
+        }
+
+          var formData = new FormData();
+           var code2 = document.getElementById("yzm2").value;
+                    var src2 = $('#code2').attr('src');
+
+                    // 提取 uuid 参数的值
+                    var uuid2 = src2.split('uuid=')[1];
+                    var param ={};
+                    param.CODE = code2;
+                    param.uuid = uuid2;
+                    param.size = UPLOAD_SIZE;
+                    console.log(param)
+
+                    $.ajax({
+                        url: "https://jsesa.com.cn/ajax/Submission ",
+                        type: "POST",
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify(param),
+                        success: function (data) {
+
+                            if(data.code==200){
+                                var cookiename = Cookie("cookie_jf_username1");
+                                formData.append("field_5550",UPLOAD_FILE);
+                                formData.append("field_5548",cookiename);
+                                formData.append("siteId",2);
+                                formData.append("formId",2);
+                                $.ajax({
+                                    url:"https://jsesa.com.cn/ajax/get_uuid?mark="+formId,
+                                    type: "POST",
+                                    cache: false,
+                                    processData: false,
+                                    contentType: false,
+                                    success: function (data) {
+                                    if(data.success && data.code==200){
+                                        formData.append("pre-repeat-sub-code-"+formId, data.info);
+                                        submitCoop(formData);
+                                    }
+                                    },
+                                    error: function (error) {
+                                    alert("程序错误");
+                                    }
+                                });
+
+                                function submitCoop(formData){
+                                    $.ajax({
+                                    url:"https://jsesa.com.cn/ajax/handle_c_form?columnId="+170,
+                                    type: "POST",
+                                    contentType: false,
+                                    processData: false,
+                                    data: formData,
+                                    success:function(data){
+                                        if(data.code==200){
+                                        alert(data.message);
+                                        setTimeout(function(){
+                                            window.location.reload();
+                                        },100)
+                                        }else{
+                                        alert(data.message);
+                                        }
+                                    },
+                                    error:function(){
+                                        alert('请求异常！请稍候再试');
+                                    }
+                                    });
+                                }
+                            }else{
+                                initUuid2()
+                                alert(data.message);
+                            }
+                        },
+                        error: function () {
+                            initUuid2()
+                            alert('请求异常！请稍候再试');
+                        }
+                    });
+    }
+    // 校验手机号码（只允许11位数字，以1开头）
+    function validatePhoneNumber(phoneNumber) {
+      var reg = /^1\d{10}$/;
+      return reg.test(phoneNumber);
+    }
+
+    //附件上传
+    var data2 = {
+      siteId:2,
+      subId:0,
+      columnId:170,
+      formFieldId:5550
+    }
+
+    var fileUrl = 'https://jsesa.com.cn/ajax/handle_file_save'
+    var upload = new Upload(fileUrl,data2,function(res){
+      
+      var size = res.info[0].fileSize;
+
+        UPLOAD_SIZE = size;
+      if(size > 30 * 1024 * 1024 ){
+          UPLOAD_FILE = 0;
+          var box = document.createElement("div");
+            box.id = "uploadList"
+            box.innerText = res.info[0].fileOriginName+res.info[0].fileSuffix;
+            box.style.float = "left";
+            box.style.marginLeft = "10px"
+            box.style.height = "48px";
+            box.style.lineHeight = "48px";
+            document.getElementById('fileupbtn').innerText=res.info[0].fileOriginName+res.info[0].fileSuffix;
+      }else{
+           UPLOAD_FILE = res.info[0].id
+            var box = document.createElement("div");
+            box.id = "uploadList"
+            box.innerText = res.info[0].fileOriginName+res.info[0].fileSuffix;
+            box.style.float = "left";
+            box.style.marginLeft = "10px"
+            box.style.height = "48px";
+            box.style.lineHeight = "48px";
+            document.getElementById('fileupbtn').innerText=res.info[0].fileOriginName+res.info[0].fileSuffix;
+                   
+      }
+      
+    },function(res) {
+      alert("程序错误");
+    })
+    upload.init()
+    upload.inp.accept = ".pdf,.doc,.docx,.jpg,.png,.zip,.rar";
+
+     
+
+    function selectFile(){
+      upload.inp.click()
+    }
+
+initUuid2();
+                //生成Uuid
+                function initUuid2(){
+                    $.ajax({
+                        url:"https://jsesa.com.cn/ajax/get_uuid?mark=-logo",
+                        type: "POST",
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        success: function (res) {
+                            if(res.success && res.code==200){
+                                var url = "https://jsesa.com.cn/sendCode?uuid="+res.info;
+                                
+                                getCode(url)
+                            }
+                        },
+                        error: function (error) {
+                            alert("程序错误");
+                        }
+                    });
+                }
+
+                //获取验证码
+                function getCode(url){
+
+                    $.ajax({
+                        url:url,
+                        type: "GET",
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        success: function (data) {
+                            document.getElementById("code2").setAttribute("src",url)
+                        },
+                        error: function (error) {
+                            alert("获取验证码失败");
+                        }
+                    });
+                }    
+
+              
+
+  </script>
+
+  <script>
+
+  dengluhtml();
+
+  function Cookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+  }
+
+  function dengluhtml() {
+
+    var cookiename = Cookie("cookie_jf_username1");
+
+    if (cookiename == "" || cookiename == null) {
+
+
+    // 如果 cookiename 为空或者未定义
+    $('#userLogin').html(
+       '<dd>' +
+    '<a href="/cxw/col161">' +
+    '<div class="icon"><img src="/cxw/res/uploadfiles/Floor002948-icon7.svg"></div>' +
+    '<p class="dot">登录</p>' +
+    '</a>' +
+    '</dd>' +
+    '<dd>' +
+    '<a href="/cxw/col240">' +
+    '<div class="icon"><img src="/cxw/res/uploadfiles/Floor002948-icon9.svg"></div>' +
+    '<p class="dot">资料下载</p>' +
+    '</a>' +
+    '</dd>' +
+    '<dd>' +
+    '<a href="/cxw/col161" id="openModal">' +
+    '<div class="icon"><img src="/cxw/res/uploadfiles/Floor002948-icon10.svg"></div>' +
+    '<p class="dot">投稿</p>' +
+    '</a>' +
+    '</dd>'
+    );
+} else {
+    // 如果 cookiename 不为空
+    $('#userLogin').html(
+       '<dd>' +
+    '<a href="javascript:void(0);">' +
+    '<div class="icon"><img src="/cxw/res/uploadfiles/Floor002948-icon7.svg"></div>' +
+    '<p class="dot">' + cookiename + '</p>' + '/ '+'<a onclick="tuichu()" style="cursor: pointer">注销</a>'+
+    '</a>' +
+    '</dd>' +
+    '<dd>' +
+    '<a href="/cxw/col163">' +
+    '<div class="icon"><img src="/cxw/res/uploadfiles/Floor002948-icon9.svg"></div>' +
+    '<p class="dot">资料下载</p>' +
+    '</a>' +
+    '</dd>' +
+    '<dd>' +
+    '<a href="javascript:void(0);" id="openModal">' +
+    '<div class="icon"><img src="/cxw/res/uploadfiles/Floor002948-icon10.svg"></div>' +
+    '<p class="dot">投稿</p>' +
+    '</a>' +
+    '</dd>'
+    );
+}
+}
+
+  function tt(){
+      var cookiename = Cookie("cookie_jf_username1");
+
+    if (cookiename == "" || cookiename == null) {
+        window.location.href="/cxw/col161"
+    }else{
+        window.location.href="/cxw/col163"
+    }
+  }
+
+
+
+
+  function tuichu() {
+    document.cookie = 'cookie_jf_username1=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    window.location.reload();
+  }
+
+</script>  
+
+	<!--Menu001662开始-->
+<div class="Menu001662" data-role="part">
+ <div class="auto w1440">
+<header>精选专栏</header>
+<ul class="ul">
+
+  <li><a href="/cxw/col173/list">储能财经</a></li>
+  <li><a href="/cxw/col146/list">储能市场</a></li>
+ <li id="nav1"><a href="/cxw/col151/list">行业政策</a></li>
+</ul>
+ <div class="clear"></div>
+	 
+  <script>
+  var nav="1"
+ $("#nav"+nav).addClass("aon");
+ $(".Menu001417 li:last-child").addClass("end");
+ </script>
+	 
+ </div>
+</div>
+<!--Menu001662结束-->
+
+	
+	
+
+<!--RighInfo002973 star-->
+<div class="RighInfo002973">
+  <div class="auto w_96">
+      <article class="news-details auto w_96">
+          <div  id="print-area">
+            <div class="title">
+              <h1>广东发布《2024年广东电力市场年度报告》，现货+中长期+调频商业模式形成</h1>
+              <aside><span>发布时间：2025-03-01 00:52:27</span>
+		    <!--<span>发布人：<a>办公室</a></span>-->
+			<!-- 
+			<span>阅读次数：<span class="wtl_hit" id="268b23f4-d181-425a-8bfa-e90e301936ab"></span>
+<script>
+ $.ajax({
+            type : "POST",
+            url : "https://www.chujiewang.net/ajax/hit",
+            data : {siteId:2,subId:0,columnId:151,infoId:7300,prevUid:''},
+            dataType : "json",
+            success : function(res) {
+            if(res.code==200)
+{
+$("#268b23f4-d181-425a-8bfa-e90e301936ab").html(res.info);
+} 
+            },
+            error : function(e){
+                console.log(e.responseText);
+            }
+        });
+</script>
+次</span> 
+             -->
+			 <!-- <span>  分享至：<div class="bshare-custom"><a title="分享到微信" class="bshare-weixin"></a><a title="分享到新浪微博" class="bshare-sinaminiblog"></a><a title="分享到QQ空间" class="bshare-qzone"></a></div></span></aside>-->
+            </div>
+			  
+			  
+  <!-- <div class="video_files">
+       <video poster="uploadfiles/shipin_01.jpg" controls="" preload="auto" class="video">
+       <source src="uploadfiles/video.mp4">
+    </video>
+  </div>-->
+  <!-- <center><img src="uploadfiles/xinwen1.jpg"></center> -->
+<br>	  
+            <div class="edit-info">
+                 <section style="text-align: unset;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">2月28日，广东电力交易中心发布《2024年广东电力市场年度报告》。</p><p style="margin-bottom: 20px;">报告中对2024年参与广东电力市场的6家独立储能的交易情况，进行了总结：</p></section><p><section style="justify-content: flex-start; display: flex; flex-flow: row; margin-top: 10px; margin-bottom: 10px;"><section style="display: inline-block;vertical-align: top;width: 43px;align-self: flex-start;flex: 0 0 auto;height: auto;background-color: rgb(255, 255, 255);margin-top: 13px;margin-right: -11px;z-index: 1;"><section style="display: flex;width: 100%;flex-flow: column;"><section style="z-index: 1;"><section><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(219, 245, 249);text-align: center;color: rgb(126, 210, 246);"><p><strong>01</strong></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="transform: scale(0.66);transform-origin: right top;margin-bottom: -12px;"><section style="margin-top: -17px;text-align: right;"><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(126, 210, 246);text-align: center;color: rgb(255, 255, 255);"><p><br/></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="display: inline-block;vertical-align: top;width: auto;flex: 100 100 0%;height: auto;border-style: solid;border-width: 1px;border-color: rgb(126, 210, 246);padding: 19px;"><section style="text-align: justify;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p>广东参与电力市场的6家独立储能分别位于：湛江、阳江、肇庆、佛山、清远、梅州。</p></section></section></section><section style="justify-content: flex-start; display: flex; flex-flow: row; margin-top: 10px; margin-bottom: 10px;"><section style="display: inline-block;vertical-align: top;width: 43px;align-self: flex-start;flex: 0 0 auto;height: auto;background-color: rgb(255, 255, 255);margin-top: 13px;margin-right: -11px;z-index: 1;"><section style="display: flex;width: 100%;flex-flow: column;"><section style="z-index: 1;"><section><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(219, 245, 249);text-align: center;color: rgb(126, 210, 246);"><p><strong>02</strong></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="transform: scale(0.66);transform-origin: right top;margin-bottom: -12px;"><section style="margin-top: -17px;text-align: right;"><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(126, 210, 246);text-align: center;color: rgb(255, 255, 255);"><p><br/></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="display: inline-block;vertical-align: top;width: auto;flex: 100 100 0%;height: auto;border-style: solid;border-width: 1px;border-color: rgb(126, 210, 246);padding: 19px;"><section style="text-align: justify;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p>2024年，独立储能参与现货日前市场累计充电电量0.6亿千瓦时，放电电量0.5 亿千瓦时，充放电平均价差0.167元/kWh（放电-充电）。</p></section></section></section><section style="justify-content: flex-start; display: flex; flex-flow: row; margin-top: 10px; margin-bottom: 10px;"><section style="display: inline-block;vertical-align: top;width: 43px;align-self: flex-start;flex: 0 0 auto;height: auto;background-color: rgb(255, 255, 255);margin-top: 13px;margin-right: -11px;z-index: 1;"><section style="display: flex;width: 100%;flex-flow: column;"><section style="z-index: 1;"><section><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(219, 245, 249);text-align: center;color: rgb(126, 210, 246);"><p><strong>03</strong></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="transform: scale(0.66);transform-origin: right top;margin-bottom: -12px;"><section style="margin-top: -17px;text-align: right;"><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(126, 210, 246);text-align: center;color: rgb(255, 255, 255);"><p><br/></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="display: inline-block;vertical-align: top;width: auto;flex: 100 100 0%;height: auto;border-style: solid;border-width: 1px;border-color: rgb(126, 210, 246);padding: 19px;"><section style="text-align: justify;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p>以充放电电量计算，独立储能参与现货日前市场，平均充放电效率为83.3%（放电电量/充电电量）。</p></section></section></section><section style="justify-content: flex-start; display: flex; flex-flow: row; margin-top: 10px; margin-bottom: 10px;"><section style="display: inline-block;vertical-align: top;width: 43px;align-self: flex-start;flex: 0 0 auto;height: auto;background-color: rgb(255, 255, 255);margin-top: 13px;margin-right: -11px;z-index: 1;"><section style="display: flex;width: 100%;flex-flow: column;"><section style="z-index: 1;"><section><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(219, 245, 249);text-align: center;color: rgb(126, 210, 246);"><p><strong>04</strong></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="transform: scale(0.66);transform-origin: right top;margin-bottom: -12px;"><section style="margin-top: -17px;text-align: right;"><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(126, 210, 246);text-align: center;color: rgb(255, 255, 255);"><p><br/></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="display: inline-block;vertical-align: top;width: auto;flex: 100 100 0%;height: auto;border-style: solid;border-width: 1px;border-color: rgb(126, 210, 246);padding: 19px;"><section style="text-align: justify;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p>在电费结算方面，参与调频市场与电能量市场的独立储能在电能量市场中充电电量共计5.0亿千瓦时，均价0.3191元/kWh；放电结算电量4.4亿千瓦时，均价0.3137元/kWh，合计结算电费-2138.5万元。</p></section></section></section><section style="justify-content: flex-start; display: flex; flex-flow: row; margin-top: 10px; margin-bottom: 10px;"><section style="display: inline-block;vertical-align: top;width: 43px;align-self: flex-start;flex: 0 0 auto;height: auto;background-color: rgb(255, 255, 255);margin-top: 13px;margin-right: -11px;z-index: 1;"><section style="display: flex;width: 100%;flex-flow: column;"><section style="z-index: 1;"><section><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(219, 245, 249);text-align: center;color: rgb(126, 210, 246);"><p><strong>05</strong></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(219, 245, 249);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="transform: scale(0.66);transform-origin: right top;margin-bottom: -12px;"><section style="margin-top: -17px;text-align: right;"><section style="display: inline-block;vertical-align: middle;"><section style="width: 0px;"><section style="border-bottom: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="width: 2em;line-height: 1em;height: 1em;background-color: rgb(126, 210, 246);text-align: center;color: rgb(255, 255, 255);"><p><br/></p></section><section style="width: 0px;"><section style="border-top: 0.65em solid rgb(126, 210, 246);border-left: 1em solid transparent !important;border-right: 1em solid transparent !important;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section></section></section><section style="display: inline-block;vertical-align: top;width: auto;flex: 100 100 0%;height: auto;border-style: solid;border-width: 1px;border-color: rgb(126, 210, 246);padding: 19px;"><section style="text-align: justify;"><p>在电费结算方面，参与调频市场与电能量市场的独立储能在电能量市场中充电电量共计5.0亿千瓦时，均价0.3191元/kWh；放电结算电量4.4亿千瓦时，均价0.3137元/kWh，合计结算电费-2138.5万元。</p></section></section></section><section style="text-align: unset;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;"><span style="letter-spacing: 1.8px;">以上数据显示，独立储能参与广东省电力现货市场，目前取得价差水平0.167元/kWh，不足以支撑储能运营，独立储能电站需要寻求多元化收益渠道。</span></p><p style="margin-bottom: 20px;">相当于电力现货市场，调频辅助服务对于储能的收入则更为重要。此次报道并未披露独立储能提供调频辅助服务后的补偿收入情况。储能与电力市场曾跟踪过相关市场情况，2024年7月，广东省调频辅助服市场中，4个独立储能电站获得的补偿总额超过了2600万，占该月市场全部调频里程补偿的25%，应用效果明显。</p><p style="margin-bottom: 20px;">从最终的结算电费来看，储能参与电能量+辅助服务市场后，产生了-2138.5万元的费用支出，这与储能充放电电量损耗，以及参与调频辅助服务市场时的电费支出有关。</p><p style="margin-bottom: 20px;">2024年10月10日，国家能源局综合司发布的《电力辅助服务市场基本规则》（征求意见稿）指出：经营主体提供辅助服务过程中产生的电能量费用，按现货市场价格结算。这也意味着提供储能电站参与电力辅助服务，面临一定电费支出风险，如在电价较高时段根据辅助服务需求进行充电操作，在电价较低时段根据辅助服务需求进行放电操作，则会出现高充低放的情况，从而电费支出大于电费收入。</p><p style="margin-bottom: 20px;">提供辅助服务的储能电站，需加强运营管理，在辅助服务补偿费用与电能量费用之间，进行决策。</p><p style="margin-bottom: 20px;">报告显示，2024年底完成的电力中长期交易中，2家独立储能企业成交年度双边协商交易，1家独立储能企业成交年度挂牌交易。</p><p style="margin-bottom: 20px;">电力现货交易+电力中长期交易+调频辅助服务，广东省的独立储能商业模式正在不断丰富，多重收益的格局正在形成。</p><p style="margin-bottom: 20px;">另外，报告对抽水蓄能参与广东省电力市场的情况也进行了总结，共计1家抽水蓄能参与电力现货市场，根据公开新闻，该电站为广东梅州抽水蓄能电站。2024年，抽水蓄能电站参与了广东省日前现货市场、实时现货市场：</p></section><section style="margin-top: 0.5em;margin-bottom: 0.5em;text-align: center;"><section style="padding: 6px;"><section><section style="float: left;"><section style="width: 5px;height: 5px;border-bottom: 1px solid rgb(215, 215, 215);border-right: 1px solid rgb(215, 215, 215);margin-left: 4px;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section><section style="width: 13px;height: 13px;border-bottom: 1px solid rgb(215, 215, 215);border-right: 1px solid rgb(215, 215, 215);margin-top: -9px;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="float: right;"><section style="width: 5px;height: 5px;border-bottom: 1px solid rgb(215, 215, 215);border-left: 1px solid rgb(215, 215, 215);margin-left: auto;margin-right: 4px;float: right;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section><section style="width: 13px;height: 13px;border-bottom: 1px solid rgb(215, 215, 215);border-left: 1px solid rgb(215, 215, 215);margin-top: -4px;margin-bottom: 4px;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="clear: both;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="padding-right: 8px;padding-left: 8px;margin-top: -9px;margin-bottom: -5px;"><section style="border-width: 1px;border-style: solid;border-color: rgb(215, 215, 215);padding: 3px;"><section style="border-width: 1px;border-style: solid;border-color: rgb(215, 215, 215);padding: 10px;"><section style="text-align: justify;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">日前现货市场：抽水蓄能电站累计出清发电电量1.9亿千瓦时，抽水电量2.4亿千瓦时，发电抽水平均价差0.168元/kWh（发电-抽水）。</p><p>实时现货市场：抽水蓄能电站累计出清发电电量2.2亿千瓦时，抽水电量3.1亿千瓦时，发电抽水平均价差0.149元/kWh（发电-抽水）。</p></section></section></section></section><section><section style="float: left;"><section style="width: 13px;height: 13px;border-top: 1px solid rgb(215, 215, 215);border-right: 1px solid rgb(215, 215, 215);"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section><section style="width: 5px;height: 5px;border-top: 1px solid rgb(215, 215, 215);border-right: 1px solid rgb(215, 215, 215);margin-top: -9px;margin-left: 4px;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="float: right;"><section style="width: 13px;height: 13px;border-top: 1px solid rgb(215, 215, 215);border-left: 1px solid rgb(215, 215, 215);"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section><section style="width: 5px;height: 5px;border-top: 1px solid rgb(215, 215, 215);border-left: 1px solid rgb(215, 215, 215);margin-top: -9px;margin-right: 4px;margin-left: auto;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="clear: both;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section></section></section><section style="text-align: unset;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">2024年，是广东现货市场正式运行的第一年，全年交易规模达6176.2亿千瓦时（全国第一）。其中市场直接交易电量3948.2亿千瓦时，同比增长25%；交易主体多元丰富，涵盖火电、核电、风电、光伏、新型储能、抽水蓄能等，全省市场主体近10万家；现货市场日前价格在0.068-0.525元/kWh之间波动。</p><p style="margin-bottom: 20px;">储能相关的内容，详细描述如下：</p></section><section style="text-align: center;margin: 10px 0%;"><section style="display: inline-block;min-width: 10%;vertical-align: top;"><section style="text-align: left;margin-right: 0%;margin-bottom: -22px;margin-left: 0%;transform: translate3d(1px, 0px, 0px);"><section style="display: inline-block;width: 70px;height: 50px;vertical-align: top;overflow: hidden;"><section style="text-align: center;margin-right: 0%;margin-left: 0%;line-height: 0;"><section style="vertical-align: middle;display: inline-block;line-height: 0;"><img class="rich_pages wxw-img" style="vertical-align: middle; width: 70px !important; height: auto !important; visibility: visible !important;" src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_0_20250313005246.png" alt="wps_doc_0" title="1741798366187"/></section></section></section></section><section style="justify-content: center;display: flex;flex-flow: row;"><section style="display: inline-block;width: 100%;vertical-align: top;border-width: 0px;border-radius: 100px;border-style: none;border-color: rgb(62, 62, 62);overflow: hidden;background-image: linear-gradient(45deg, rgb(33, 91, 233) 0%, rgb(129, 231, 253) 100%);padding-right: 20px;padding-left: 35px;align-self: flex-start;flex: 0 0 auto;"><section style="margin: 9px 0%;"><section style="font-size: 17px;color: rgb(255, 255, 255);line-height: 1;letter-spacing: 3px;"><p style="margin-bottom: 10px;"><span style="text-shadow: rgb(0, 126, 173) 1.28558px 1.53209px 2px;"><strong>共99960家参与市场</strong></span></p><p><span style="text-shadow: rgb(0, 126, 173) 1.28558px 1.53209px 2px;"><strong>其中独立储能6家、抽蓄蓄能1家</strong></span></p></section></section></section></section></section></section><section style="text-align: unset;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">截至2024年底，广东电力市场累计注册登记经营主体共99960家，同比增长52.6%，全年新增经营主体34484家。其中独立储能截止2024年12月底累计有6家注册并参与电能量交易。</p><p style="text-align: center;"><img class="rich_pages wxw-img js_insertlocalimg" style="width: 637px !important; height: auto !important; visibility: visible !important;" src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_1_20250313005252.png" alt="wps_doc_1" title="1741798372311"/></p><p style="margin-bottom: 20px;">注：2024年，1家电力用户先后参与零售市场交易、批发市场交易。</p><p style="margin-bottom: 20px;">其中现货市场：共有318台机组、257家售电公司、4家批发用户、6家独立储能、1家抽水蓄能（4台抽蓄机组）参与现货市场日前申报，平均报价0.3415元/kWh（341.5厘/千瓦时）。其中煤机 389.4厘/千瓦时，气机 592.9厘/千瓦时，新能源12.7厘/千瓦时。</p><p style="text-align: center;"><img class="rich_pages wxw-img js_insertlocalimg" style="width: 637px !important; height: auto !important; visibility: visible !important;" src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_2_20250313005300.png" alt="wps_doc_2" title="1741798380829"/></p><p style="margin-bottom: 20px;"><br/></p></section><section style="text-align: center;margin: 10px 0%;"><section style="display: inline-block;min-width: 10%;vertical-align: top;"><section style="text-align: left;margin-right: 0%;margin-bottom: -22px;margin-left: 0%;transform: translate3d(1px, 0px, 0px);"><section style="display: inline-block;width: 70px;height: 50px;vertical-align: top;overflow: hidden;"><section style="text-align: center;margin-right: 0%;margin-left: 0%;line-height: 0;"><section style="vertical-align: middle;display: inline-block;line-height: 0;"><img class="rich_pages wxw-img" style="vertical-align: middle; width: 70px !important; height: auto !important; visibility: visible !important;" src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_3_20250313005308.png" alt="wps_doc_3" title="1741798388762"/></section></section></section></section><section style="justify-content: center;display: flex;flex-flow: row;"><section style="display: inline-block;width: 100%;vertical-align: top;border-width: 0px;border-radius: 100px;border-style: none;border-color: rgb(62, 62, 62);overflow: hidden;background-image: linear-gradient(45deg, rgb(33, 91, 233) 0%, rgb(129, 231, 253) 100%);padding-right: 20px;padding-left: 35px;align-self: flex-start;flex: 0 0 auto;"><section style="margin: 9px 0%;"><section style="font-size: 17px;color: rgb(255, 255, 255);line-height: 1;letter-spacing: 3px;"><p><span style="text-shadow: rgb(0, 126, 173) 1.28558px 1.53209px 2px;"><strong>独立储能及抽水蓄能参与交易情况</strong></span></p></section></section></section></section></section></section><section style="text-align: unset;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">2024年，独立储能参与现货日前市场累计充电电量0.6亿千瓦时，放电电量0.5 亿千瓦时，充放电平均价差（放电-充电）0.167元/kWh（167厘/千瓦时）。</p><p style="margin-bottom: 20px;">2024年，抽水蓄能电站参与现货日前市场累计出清发电电量1.9亿千瓦时，抽水电量2.4亿千瓦时，发电抽水平均价差（发电-抽水）0.168元/kWh（168厘/千瓦时;抽水蓄能电站参与现货实时市场累计出清发电电量2.2亿千瓦时，抽水电量3.1亿千瓦时，发电抽水平均价差(发电-抽水)0.1649元/kWh（149 厘/千瓦时）。</p><p style="margin-bottom: 20px;">2024 年，广东电力市场全年直接交易电量达3948.2亿千瓦时，约九成市场电量由中长期交易覆盖，有效发挥中长期“压舱石”作用，新增多月集中竞争交易品种，实现中长期交易按自然日连续开市；现货市场日前价格在0.068-0.525元/kWh之间波动。</p><p style="text-align: center;"><img class="rich_pages wxw-img js_insertlocalimg" style="width: 637px !important; height: auto !important; visibility: visible !important;" src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_4_20250313005316.png" alt="wps_doc_4" title="1741798396187"/></p><p style="margin-bottom: 20px;"><br/></p></section><section style="text-align: center;margin: 10px 0%;"><section style="display: inline-block;min-width: 10%;vertical-align: top;"><section style="text-align: left;margin-right: 0%;margin-bottom: -22px;margin-left: 0%;transform: translate3d(1px, 0px, 0px);"><section style="display: inline-block;width: 70px;height: 50px;vertical-align: top;overflow: hidden;"><section style="text-align: center;margin-right: 0%;margin-left: 0%;line-height: 0;"><section style="vertical-align: middle;display: inline-block;line-height: 0;"><img style="vertical-align: middle; width: 70px !important; height: auto !important; visibility: visible !important;" src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_5_20250313005323.png" class="" alt="wps_doc_5" title="1741798403776"/></section></section></section></section><section style="justify-content: center;display: flex;flex-flow: row;"><section style="display: inline-block;width: 100%;vertical-align: top;border-width: 0px;border-radius: 100px;border-style: none;border-color: rgb(62, 62, 62);overflow: hidden;background-image: linear-gradient(45deg, rgb(33, 91, 233) 0%, rgb(129, 231, 253) 100%);padding-right: 20px;padding-left: 35px;align-self: flex-start;flex: 0 0 auto;"><section style="margin: 9px 0%;"><section style="font-size: 17px;color: rgb(255, 255, 255);line-height: 1;letter-spacing: 3px;"><p style="margin-bottom: 10px;"><span style="text-shadow: rgb(0, 126, 173) 1.28558px 1.53209px 2px;"><strong>价差0.0573元/kWh，-548.8万元</strong></span></p><p><span style="text-shadow: rgb(0, 126, 173) 1.28558px 1.53209px 2px;"><strong>独立储能及抽水蓄能电费结算情况</strong></span></p></section></section></section></section></section></section><section style="text-align: unset;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">2024年，共有6家独立储能与1家抽水蓄能参与电力现货市场，充电（抽水）电量共计8.7亿千瓦时，均价0.288元/kWh（288.0厘/千瓦时）；放电（发电）结算电量7.1亿千瓦时，均价0.3453元/kWh（345.3厘/千瓦时）；充放电（抽水发电）价差0.0573元/kWh（57.3厘/千瓦时）。合计结算电费-548.8万元，其中充放电能量电费-581.1万元，分摊及返还电费32.3万元。</p></section><section style="margin-top: 10px;margin-bottom: 10px;"><section style="width: 2.5em;margin-left: auto;"><section style="width: 2.5em;border-top: 1px solid rgb(158, 158, 158);"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section><section style="height: 1.4em;border-left: 1px solid rgb(158, 158, 158);margin-top: -0.5em;margin-left: 2em;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="padding-right: 0.5em;padding-left: 0.5em;"><section style="padding: 10px;"><section style="line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">仅参与电能量市场的独立储能与抽水蓄能：充电（抽水）电量共计3.7亿千瓦时，均价0.2454元/kWh（245.4 厘/千瓦时）；放电（发电）结算电量2.7亿千瓦时，均价0.3992元/kWh（399.2厘/千瓦时），平均价差0.1538元/Wh,合计结算电费1589.7万元。</p><p>参与调频市场与电能量市场的独立储能：在电能量市场中充电（抽水）电量共计5.0亿千瓦时，均价0.3191元/kWh（319.1厘/千瓦时）；放电（发电）结算电量4.4亿千瓦时，均价0.3137元/kWh（313.7厘/千瓦时），平均价差-0.0054元/kWh，合计结算电费-2138.5万元。</p></section></section></section><section style="height: 1.4em;border-left: 1px solid rgb(158, 158, 158);margin-bottom: -0.5em;margin-left: 0.5em;"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section><section style="width: 2.5em;border-top: 1px solid rgb(158, 158, 158);"><svg viewbox="0 0 1 1" style="float:left;line-height:0;width:0;vertical-align:top;"></svg></section></section><section style="text-align: unset;line-height: 2;letter-spacing: 1.8px;padding-right: 10px;padding-left: 10px;"><p style="margin-bottom: 20px;">2024年，广东省电力市场取得了多方面进展：健全“年+月(多月)+多日(周)+日前+实时”全周期盖、全电量竞争的“中长期+现货”市场交易体系，完善气机变动成本补偿机制；配合南方区域电力市场开展5次共53天结算试运行；建立新能源“全电量报量报价”“基数+现货偏差结算”交易机制，充分发挥新能源低边际成本优势；推动分布式光伏参与绿电交易；首创抽水蓄能、虚拟电厂等新型主体“报量报价”参与市场交易机制。</p><p style="text-align: center;"><strong>报告原文如下：</strong></p><p style="text-align: center;"></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_0_20250313005540.png" style="" title="1741798540713"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_1_20250313005541.png" style="" title="1741798541022"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_2_20250313005541.png" style="" title="1741798541359"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_3_20250313005541.png" style="" title="1741798541119"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_4_20250313005541.png" style="" title="1741798541421"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_5_20250313005542.png" style="" title="1741798542084"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_6_20250313005542.png" style="" title="1741798542896"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_7_20250313005543.png" style="" title="1741798543486"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_8_20250313005544.png" style="" title="1741798544105"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_9_20250313005545.png" style="" title="1741798545909"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_10_20250313005545.png" style="" title="1741798545991"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_11_20250313005547.png" style="" title="1741798547843"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_12_20250313005547.png" style="" title="1741798547994"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_13_20250313005548.png" style="" title="1741798548045"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_14_20250313005549.png" style="" title="1741798549813"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_15_20250313005550.png" style="" title="1741798550932"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_16_20250313005551.png" style="" title="1741798551123"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_17_20250313005551.png" style="" title="1741798551369"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_18_20250313005552.png" style="" title="1741798552514"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_19_20250313005553.png" style="" title="1741798553330"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_20_20250313005554.png" style="" title="1741798554152"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_21_20250313005555.png" style="" title="1741798555160"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_22_20250313005555.png" style="" title="1741798555318"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_23_20250313005556.png" style="" title="1741798556315"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_24_20250313005556.png" style="" title="1741798556495"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_25_20250313005557.png" style="" title="1741798557971"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_26_20250313005558.png" style="" title="1741798558793"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_27_20250313005558.png" style="" title="1741798558933"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_28_20250313005559.png" style="" title="1741798559086"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_29_20250313005600.png" style="" title="1741798560532"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_30_20250313005601.png" style="" title="1741798561196"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_31_20250313005601.png" style="" title="1741798561655"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_32_20250313005602.png" style="" title="1741798562439"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_33_20250313005602.png" style="" title="1741798562476"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_34_20250313005603.png" style="" title="1741798563850"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_35_20250313005604.png" style="" title="1741798564492"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_36_20250313005604.png" style="" title="1741798564734"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_37_20250313005606.png" style="" title="1741798566954"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_38_20250313005606.png" style="" title="1741798566829"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_39_20250313005606.png" style="" title="1741798566923"/><br/></p><p><br/></p><p style="text-align: center;"><img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2025/03/13/wps_doc_40_20250313005608.png" style="" title="1741798568116"/><br/></p><p><br/></p><p style="text-align: center;"><strong><br/></strong><br/></p></section></p><p><br/></p>
+            </div>
+			  
+          </div>
+          <div class="pn-page">
+            <div class="operating"><a class="a-print" href="javascript:void(0);">打印本页</a><a class="a-close" href="/cxw/col151/list">返回列表页</a></div>
+          <aside class="dot">
+
+              <a href="/cxw/col151/7184"><b>上一条：</b>国家能源局电力司司长杜忠明：为中国式现代化提供坚强电力保障</a>
+          </aside>
+          <aside class="dot">
+              <a href="/cxw/col151/7162"><b>下一条：</b>利好氢能！国家能源局发布重磅文件！</a>
+          </aside>
+          </div>
+      </article>  
+  </div>
+</div>
+<script>
+$(".a-print").click(function(){
+    $("#print-area").printArea();
+});
+ function closeWindow() {
+    var userAgent = navigator.userAgent;
+    if (userAgent.indexOf("Firefox") != -1 || userAgent.indexOf("Chrome") != -1) {
+        location.href = "about:blank";
+    } else {
+        window.opener = null;
+        window.open('', '_self');
+    }
+    window.close();
+}
+</script>
+<!--RighInfo002973 end-->
+	
+	
+	
+	
+	
+
+	
+	
+<div class="Bottom003168">
+    <section class="root-100 root-w-1440">
+      <section class="root-sz-16">
+                <div class="b-bottom">
+          <div class="auto clearfix w_86">
+            <div class="fr contact">
+              <ul class="ul ytable">
+                
+                <li class="ytable">
+                  <img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2024/10/25/图片2_20241025134913.png" alt="" class="img-block">
+                  <span>关注我们</span>
+                </li>
+                <li class="ytable">
+                  <img src="https://aliyun-jsesa.oss-cn-hangzhou.aliyuncs.com/chujiewang/image/2024/10/25/图片1_20241025134903.png" alt="" class="img-block">
+                  <span>储能小助手</span>
+              </li>
+                                
+              </ul>
+            </div>
+            <div class="fl copyright">
+              <!-- <nav>
+                  <a href="/cxw/col240/list">资料下载</a>
+                  <a href="/cxw/col158/list">关于我们</a>
+                  <a href="/cxw/col129/list">国内资讯</a>
+                  <a href="/cxw/col134/list">国际资讯</a>
+                  <a href="/cxw/col142/list">会议会展</a>
+                  <a href="/cxw/col236/list">政策通知</a>
+                  <a href="/cxw/col181/list">专家智库</a>
+              </nav> -->
+              <p>Copyright © 江苏省储能行业协会 &nbsp;版权所有 <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">苏ICP备2021053254号-1</a> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<a href="https://beian.mps.gov.cn/#/query/webSearch" target="_blank"><span class="gongan">苏公网安备32010602012026号</span></a>&nbsp;</p>
+              <p>
+                地址：南京市鼓楼区西康路七号5楼    电话： 025-86182809 Designed by <a href="https://www.wanhu.com.cn"
+                  target="_blank">Wanhu</a></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+  <script>
+    $(".Bottom003168 .links-box .box").each(function() {
+      var _name = $(this).find(".name")
+      var _dl = $(this).find("dl")
+      _name.click(function() {
+        _dl.slideDown()
+        $(this).addClass("on")
+      });
+      $(this).mouseleave(function() {
+        $(this).find("dl").slideUp();
+      })
+    })
+  </script>
+<script type="text/javascript">
+   document.write(decodeURI("%3Cscript src='https://jsesa.com.cn/2/151/visit_log?url=")+encodeURIComponent(document.location.href)+decodeURI("&referrer=")+encodeURIComponent(document.referrer)+decodeURI("' type='text/javascript'%3E%3C/script%3E"));
+</script>
+  <!--Bottom003168 end-->
+
+
+
+</body>
+
+</html>

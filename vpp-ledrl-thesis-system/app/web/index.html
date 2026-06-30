@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VPP LE-DRL 研究展示系统</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>大语言模型与深度强化学习融合的虚拟电厂动态优化与决策研究</h1>
+        <p>中国场景数据生成 · VPP 储能调度仿真 · 语义增强策略 · AI 预测解释接口</p>
+      </div>
+      <button id="runBtn">运行实验</button>
+    </header>
+
+    <main>
+      <section class="controls">
+        <label>
+          区域
+          <input id="region" value="广东省" />
+        </label>
+        <label>
+          起始时间
+          <input id="start" value="2025-07-01 00:00:00" />
+        </label>
+        <label>
+          天数
+          <input id="days" type="number" min="1" max="60" value="7" />
+        </label>
+        <label>
+          随机种子
+          <input id="seed" type="number" value="42" />
+        </label>
+      </section>
+
+      <section class="metric-grid" id="metrics"></section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>运行轨迹</h2>
+          <select id="policySelect"></select>
+        </div>
+        <canvas id="chart" width="1200" height="430"></canvas>
+      </section>
+
+      <section class="columns">
+        <div class="panel">
+          <h2>文本事件</h2>
+          <div id="events" class="event-list"></div>
+        </div>
+        <div class="panel">
+          <h2>AI预测与解释</h2>
+          <div id="explanations" class="explain-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
+

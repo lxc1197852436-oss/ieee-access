@@ -1,0 +1,29 @@
+﻿scenario_id,scenario_name,model_id,model_name,purpose
+S1,常规夏季运行场景,rule,Rule-Based,中期与正式实验基线
+S1,常规夏季运行场景,softq_numeric,Soft-Q-Numeric,中期基线
+S1,常规夏季运行场景,softq_semantic,Soft-Q-Semantic,中期基线
+S1,常规夏季运行场景,sac_numeric,SAC-Numeric,正式核心基线
+S1,常规夏季运行场景,ledrl_sac,LE-DRL-SAC,正式核心方法
+S1,常规夏季运行场景,ledrl_without_text,LE-DRL w/o Text,正式消融实验
+S1,常规夏季运行场景,milp,MILP Rolling Horizon,正式强基准
+S2,高温负荷压力场景,rule,Rule-Based,中期与正式实验基线
+S2,高温负荷压力场景,softq_numeric,Soft-Q-Numeric,中期基线
+S2,高温负荷压力场景,softq_semantic,Soft-Q-Semantic,中期基线
+S2,高温负荷压力场景,sac_numeric,SAC-Numeric,正式核心基线
+S2,高温负荷压力场景,ledrl_sac,LE-DRL-SAC,正式核心方法
+S2,高温负荷压力场景,ledrl_without_text,LE-DRL w/o Text,正式消融实验
+S2,高温负荷压力场景,milp,MILP Rolling Horizon,正式强基准
+S3,价格尖峰场景,rule,Rule-Based,中期与正式实验基线
+S3,价格尖峰场景,softq_numeric,Soft-Q-Numeric,中期基线
+S3,价格尖峰场景,softq_semantic,Soft-Q-Semantic,中期基线
+S3,价格尖峰场景,sac_numeric,SAC-Numeric,正式核心基线
+S3,价格尖峰场景,ledrl_sac,LE-DRL-SAC,正式核心方法
+S3,价格尖峰场景,ledrl_without_text,LE-DRL w/o Text,正式消融实验
+S3,价格尖峰场景,milp,MILP Rolling Horizon,正式强基准
+S4,新能源消纳压力场景,rule,Rule-Based,中期与正式实验基线
+S4,新能源消纳压力场景,softq_numeric,Soft-Q-Numeric,中期基线
+S4,新能源消纳压力场景,softq_semantic,Soft-Q-Semantic,中期基线
+S4,新能源消纳压力场景,sac_numeric,SAC-Numeric,正式核心基线
+S4,新能源消纳压力场景,ledrl_sac,LE-DRL-SAC,正式核心方法
+S4,新能源消纳压力场景,ledrl_without_text,LE-DRL w/o Text,正式消融实验
+S4,新能源消纳压力场景,milp,MILP Rolling Horizon,正式强基准

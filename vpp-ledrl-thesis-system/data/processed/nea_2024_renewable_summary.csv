@@ -1,0 +1,13 @@
+﻿year,indicator,value,unit,source_id
+2024,renewable_added_capacity,3.73,100m_kw,nea_renewable_2024
+2024,renewable_total_capacity,18.89,100m_kw,nea_renewable_2024
+2024,hydro_total_capacity,4.36,100m_kw,nea_renewable_2024
+2024,wind_total_capacity,5.21,100m_kw,nea_renewable_2024
+2024,solar_total_capacity,8.87,100m_kw,nea_renewable_2024
+2024,biomass_total_capacity,0.46,100m_kw,nea_renewable_2024
+2024,renewable_generation,3.46,trillion_kwh,nea_renewable_2024
+2024,wind_solar_generation,1.83,trillion_kwh,nea_renewable_2024
+2024,wind_generation,9916.0,100m_kwh,nea_renewable_2024
+2024,wind_utilization_rate,95.9,pct,nea_renewable_2024
+2024,solar_generation,8341.0,100m_kwh,nea_renewable_2024
+2024,solar_utilization_rate,96.8,pct,nea_renewable_2024

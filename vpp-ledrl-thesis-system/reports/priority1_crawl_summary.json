@@ -1,0 +1,9 @@
+{
+  "source_count": 5,
+  "power_rows": 6,
+  "renewable_rows": 12,
+  "utilization_rows": 0,
+  "market_rows": 10,
+  "recommended_region": "广东",
+  "notes": "These sources are public aggregate/disclosure data. They are suitable for thesis background, parameter calibration, scenario construction, and event text, but not enough alone for fully real 15-minute RL training."
+}

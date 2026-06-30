@@ -1,0 +1,8 @@
+﻿source,status,policy,total_reward_yuan,mean_reward_yuan,cvar_5_yuan,battery_throughput_mwh,high_price_discharge_rate,low_price_charge_rate,final_soc,event_count
+midterm_softq,completed,Rule-Based,-159857.7286,-184.8066,-421.7267,68.4479,0.5346,0.0691,0.3974,33
+midterm_softq,completed,LE-DRL-Semantic,-154406.8852,-178.5051,-390.2929,85.8719,0.6267,0.7005,0.2359,33
+midterm_softq,completed,Soft-Q-Numeric,-186543.4167,-215.6571,-772.7748,235.6578,0.4562,0.5207,0.6149,33
+midterm_softq,completed,Soft-Q-Semantic,-183974.9997,-212.6879,-704.3527,225.5139,0.3825,0.4286,0.6455,33
+midterm_softq,completed,Random,-207316.8442,-239.6727,-704.3493,186.1558,0.4332,0.4147,0.1495,33
+chapter4_short_sac,short_train_only,SAC-Numeric,-280502.2028804329,-324.2800033299802,-781.5584897195822,113.3614826775677,0.4377880184331797,0.11981566820276497,0.1,33
+chapter4_short_sac,short_train_only,LE-DRL-SAC,-210623.92943692033,-243.4958721814108,-618.4925405900213,114.52358401373556,0.02304147465437788,0.1382488479262673,0.9,33

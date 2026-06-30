@@ -1,0 +1,11 @@
+﻿indicator,value,unit,source_id
+guangdong_spot_price_min_yuan_kwh,0.068,yuan/kWh,guangdong_market_2024
+guangdong_spot_price_max_yuan_kwh,0.525,yuan/kWh,guangdong_market_2024
+storage_day_ahead_spread_yuan_kwh,0.167,yuan/kWh,guangdong_market_2024
+storage_charge_energy_100m_kwh,0.6,100m_kWh,guangdong_market_2024
+storage_discharge_energy_100m_kwh,0.5,100m_kWh,guangdong_market_2024
+spot_market_direct_trade_100m_kwh,3948.2,100m_kWh,guangdong_market_2024
+registered_market_entities,100000.0,entity,guangdong_market_2024
+spot_participants_total,99960.0,value,guangdong_market_2024
+storage_charge_settlement_price_yuan_kwh,0.288,yuan/kWh,guangdong_market_2024
+storage_discharge_settlement_price_yuan_kwh,0.3453,yuan/kWh,guangdong_market_2024

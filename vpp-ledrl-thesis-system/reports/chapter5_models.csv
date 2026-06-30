@@ -1,0 +1,8 @@
+﻿model_id,name,description,chapter
+rule,Rule-Based,固定阈值策略，低价/高光伏充电，高价放电。,中期与正式实验基线
+softq_numeric,Soft-Q-Numeric,离散动作最大熵RL过渡基线，仅使用数值状态。,中期基线
+softq_semantic,Soft-Q-Semantic,离散动作最大熵RL过渡基线，使用数值状态和语义状态。,中期基线
+sac_numeric,SAC-Numeric,连续动作SAC，仅使用数值状态。,正式核心基线
+ledrl_sac,LE-DRL-SAC,本文核心方法，使用数值状态和文本语义增强状态。,正式核心方法
+ledrl_without_text,LE-DRL w/o Text,文本消融模型，网络结构与LE-DRL一致但移除文本语义输入。,正式消融实验
+milp,MILP Rolling Horizon,滚动优化上界或强基准，用于解释RL策略与优化方法差距。,正式强基准

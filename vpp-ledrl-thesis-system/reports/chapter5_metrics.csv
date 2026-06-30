@@ -1,0 +1,11 @@
+﻿metric_id,name,unit,description
+total_reward_yuan,总收益,元,经济性指标，越高越好
+mean_reward_yuan,平均奖励,元/步,单位调度步收益
+cvar_5_yuan,CVaR 5%,元,尾部风险指标，越高表示极端亏损越小
+battery_throughput_mwh,储能吞吐量,MWh,储能使用强度
+high_price_discharge_rate,高价放电率,比例,高电价时段放电动作占比
+low_price_charge_rate,低价充电率,比例,低电价时段充电动作占比
+final_soc,终止SOC,比例,期末储能状态
+event_count,文本事件数,次,场景中文本事件触发数量
+violation_yuan,约束惩罚,元,动作因SOC边界不可执行导致的惩罚
+curtailment_cost_yuan,弃光惩罚,元,新能源消纳压力相关成本

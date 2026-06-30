@@ -1,0 +1,155 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "S1",
+      "name": "常规夏季运行场景",
+      "description": "负荷、电价和光伏出力均处于常规波动范围，用于验证模型基础经济性。",
+      "start": "2025-07-01 00:00:00",
+      "days": 7,
+      "seed": 2026,
+      "region": "广东省",
+      "stress_type": "normal",
+      "periods": 672
+    },
+    {
+      "scenario_id": "S2",
+      "name": "高温负荷压力场景",
+      "description": "增强高温预警与晚高峰负荷压力，用于测试文本语义对提前保留储能的作用。",
+      "start": "2025-07-08 00:00:00",
+      "days": 7,
+      "seed": 2031,
+      "region": "广东省",
+      "stress_type": "heat_load",
+      "periods": 672
+    },
+    {
+      "scenario_id": "S3",
+      "name": "价格尖峰场景",
+      "description": "增强市场价格尖峰文本事件和晚高峰高价，用于测试语义增强策略的套利与风险控制能力。",
+      "start": "2025-07-15 00:00:00",
+      "days": 7,
+      "seed": 2042,
+      "region": "广东省",
+      "stress_type": "price_spike",
+      "periods": 672
+    },
+    {
+      "scenario_id": "S4",
+      "name": "新能源消纳压力场景",
+      "description": "增强午间光伏出力和新能源消纳提示，用于测试储能对弃光惩罚的响应。",
+      "start": "2025-07-22 00:00:00",
+      "days": 7,
+      "seed": 2053,
+      "region": "广东省",
+      "stress_type": "renewable_curtailment",
+      "periods": 672
+    }
+  ],
+  "models": [
+    {
+      "model_id": "rule",
+      "name": "Rule-Based",
+      "description": "固定阈值策略，低价/高光伏充电，高价放电。",
+      "chapter": "中期与正式实验基线"
+    },
+    {
+      "model_id": "softq_numeric",
+      "name": "Soft-Q-Numeric",
+      "description": "离散动作最大熵RL过渡基线，仅使用数值状态。",
+      "chapter": "中期基线"
+    },
+    {
+      "model_id": "softq_semantic",
+      "name": "Soft-Q-Semantic",
+      "description": "离散动作最大熵RL过渡基线，使用数值状态和语义状态。",
+      "chapter": "中期基线"
+    },
+    {
+      "model_id": "sac_numeric",
+      "name": "SAC-Numeric",
+      "description": "连续动作SAC，仅使用数值状态。",
+      "chapter": "正式核心基线"
+    },
+    {
+      "model_id": "ledrl_sac",
+      "name": "LE-DRL-SAC",
+      "description": "本文核心方法，使用数值状态和文本语义增强状态。",
+      "chapter": "正式核心方法"
+    },
+    {
+      "model_id": "ledrl_without_text",
+      "name": "LE-DRL w/o Text",
+      "description": "文本消融模型，网络结构与LE-DRL一致但移除文本语义输入。",
+      "chapter": "正式消融实验"
+    },
+    {
+      "model_id": "milp",
+      "name": "MILP Rolling Horizon",
+      "description": "滚动优化上界或强基准，用于解释RL策略与优化方法差距。",
+      "chapter": "正式强基准"
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "total_reward_yuan",
+      "name": "总收益",
+      "unit": "元",
+      "description": "经济性指标，越高越好"
+    },
+    {
+      "metric_id": "mean_reward_yuan",
+      "name": "平均奖励",
+      "unit": "元/步",
+      "description": "单位调度步收益"
+    },
+    {
+      "metric_id": "cvar_5_yuan",
+      "name": "CVaR 5%",
+      "unit": "元",
+      "description": "尾部风险指标，越高表示极端亏损越小"
+    },
+    {
+      "metric_id": "battery_throughput_mwh",
+      "name": "储能吞吐量",
+      "unit": "MWh",
+      "description": "储能使用强度"
+    },
+    {
+      "metric_id": "high_price_discharge_rate",
+      "name": "高价放电率",
+      "unit": "比例",
+      "description": "高电价时段放电动作占比"
+    },
+    {
+      "metric_id": "low_price_charge_rate",
+      "name": "低价充电率",
+      "unit": "比例",
+      "description": "低电价时段充电动作占比"
+    },
+    {
+      "metric_id": "final_soc",
+      "name": "终止SOC",
+      "unit": "比例",
+      "description": "期末储能状态"
+    },
+    {
+      "metric_id": "event_count",
+      "name": "文本事件数",
+      "unit": "次",
+      "description": "场景中文本事件触发数量"
+    },
+    {
+      "metric_id": "violation_yuan",
+      "name": "约束惩罚",
+      "unit": "元",
+      "description": "动作因SOC边界不可执行导致的惩罚"
+    },
+    {
+      "metric_id": "curtailment_cost_yuan",
+      "name": "弃光惩罚",
+      "unit": "元",
+      "description": "新能源消纳压力相关成本"
+    }
+  ],
+  "experiment_count": 28
+}

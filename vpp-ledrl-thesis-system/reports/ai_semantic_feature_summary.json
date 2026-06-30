@@ -1,0 +1,7 @@
+{
+  "provider": "openai_compatible",
+  "model": "deepseek-v4-flash",
+  "event_count": 5,
+  "event_features": "/Users/xingchengli/Documents/New project/vpp-ledrl-thesis-system/data/processed/ai_event_semantic_features.csv",
+  "chapter6_scenarios": "/Users/xingchengli/Documents/New project/vpp-ledrl-thesis-system/data/processed/chapter6_ai_semantic_scenarios.csv"
+}

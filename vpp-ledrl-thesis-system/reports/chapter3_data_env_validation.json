@@ -1,0 +1,79 @@
+{
+  "dataset": "/Users/xingchengli/Documents/New project/vpp-ledrl-thesis-system/data/processed/china_vpp_priority1_guangdong_sample.csv",
+  "dataset_validation": {
+    "rows": 2880,
+    "missing_required_columns": [],
+    "duplicated_timestamps": 0,
+    "irregular_15min_steps": 0,
+    "null_counts": {
+      "timestamp": 0,
+      "region": 0,
+      "load_mw": 0,
+      "pv_mw": 0,
+      "price_yuan_mwh": 0,
+      "temperature_c": 0,
+      "event_type": 0,
+      "event_text": 0
+    },
+    "numeric_ranges": {
+      "load_mw": {
+        "min": 2.8797,
+        "max": 5.2626,
+        "mean": 3.8059109027777778
+      },
+      "pv_mw": {
+        "min": 0.0,
+        "max": 5.1759,
+        "mean": 1.1966346180555556
+      },
+      "price_yuan_mwh": {
+        "min": 68.0,
+        "max": 525.0,
+        "mean": 260.76217541666665
+      },
+      "temperature_c": {
+        "min": 27.301,
+        "max": 36.353,
+        "mean": 31.38199027777778
+      }
+    },
+    "event_counts": {
+      "正常运行": 2767,
+      "高温预警": 42,
+      "价格尖峰": 41,
+      "新能源消纳": 17,
+      "需求响应": 13
+    },
+    "time_range": [
+      "2025-07-01T00:00:00",
+      "2025-07-30T23:45:00"
+    ]
+  },
+  "environment_validation": {
+    "checked_steps": 96,
+    "reward_sum_yuan": -19415.714859702497,
+    "reward_mean_yuan": -202.2470297885677,
+    "soc_min": 0.35355263157894723,
+    "soc_max": 0.8324999999999999,
+    "action_clipped_count": 0,
+    "history_fields": [
+      "actual_action_mw",
+      "curtailment_cost_yuan",
+      "degradation_yuan",
+      "event_text",
+      "event_type",
+      "load_mw",
+      "net_export_mw",
+      "price_yuan_mwh",
+      "pv_mw",
+      "requested_action_mw",
+      "revenue_yuan",
+      "reward_yuan",
+      "soc",
+      "temperature_c",
+      "timestamp",
+      "violation_yuan"
+    ]
+  },
+  "conclusion": "pass"
+}
