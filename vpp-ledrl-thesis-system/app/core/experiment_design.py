@@ -97,10 +97,16 @@ BASELINE_MODELS = [
         "chapter": "正式消融实验",
     },
     {
+        "model_id": "enhanced_rolling_horizon",
+        "name": "Enhanced Rolling-Horizon",
+        "description": "加入终端SOC价值、动作平滑和额外循环惩罚的MPC-like滚动优化强基准。",
+        "chapter": "正式强基准",
+    },
+    {
         "model_id": "milp",
         "name": "MILP Rolling Horizon",
-        "description": "滚动优化上界或强基准，用于解释RL策略与优化方法差距。",
-        "chapter": "正式强基准",
+        "description": "待实现的完整MILP/MPC强基准，用于解释RL策略与优化方法差距。",
+        "chapter": "后续强基准",
     },
 ]
 

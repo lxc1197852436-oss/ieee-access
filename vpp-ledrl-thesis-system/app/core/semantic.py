@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 
@@ -64,5 +63,5 @@ def semantic_vector(signal: SemanticSignal) -> list[float]:
         signal.price_spike_score,
         signal.load_pressure_score,
         signal.renewable_curtailment_score,
-        math.sqrt(max(signal.risk_score, 0.0)),
+        signal.storage_bias,
     ]

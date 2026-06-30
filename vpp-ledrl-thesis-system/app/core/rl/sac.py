@@ -201,20 +201,28 @@ def semantic_target_actions(states, action_limit: float):
 
     Encoded state layout comes from StateEncoder:
     price_norm index 2, SOC index 4, semantic indices 7:12.
-    Positive action discharges; negative action charges.
+    The semantic slice is [risk, price_spike, load_pressure,
+    renewable_curtailment, storage_bias]. Positive action discharges; negative
+    action charges.
     """
     price_norm = states[:, 2:3]
     soc = states[:, 4:5]
     price_spike = torch.clamp(states[:, 8:9], 0.0, 1.0)
     load_pressure = torch.clamp(states[:, 9:10], 0.0, 1.0)
     renewable = torch.clamp(states[:, 10:11], 0.0, 1.0)
+    storage_bias = torch.clamp(states[:, 11:12], -1.0, 1.0)
 
     low_price = torch.sigmoid((-0.18 - price_norm) * 8.0)
     high_price = torch.sigmoid((price_norm - 1.00) * 6.0)
     can_charge = torch.sigmoid((0.86 - soc) * 20.0)
     can_discharge = torch.sigmoid((soc - 0.20) * 20.0)
 
-    charge_need = torch.maximum(low_price * 0.65, renewable * 0.85) * can_charge
-    discharge_need = torch.maximum(high_price * 0.85, torch.maximum(price_spike, load_pressure) * 0.55) * can_discharge
+    storage_charge = torch.clamp(storage_bias, min=0.0) * 0.75
+    storage_discharge = torch.clamp(-storage_bias, min=0.0) * 0.75
+    charge_need = torch.maximum(torch.maximum(low_price * 0.65, renewable * 0.85), storage_charge) * can_charge
+    discharge_need = torch.maximum(
+        torch.maximum(high_price * 0.85, torch.maximum(price_spike, load_pressure) * 0.55),
+        storage_discharge,
+    ) * can_discharge
     target = (discharge_need - charge_need) * float(action_limit) * 0.8
     return torch.clamp(target, -float(action_limit), float(action_limit))

@@ -16,7 +16,7 @@ from app.core.data import generate_china_vpp_scenario
 from app.core.experiment_design import SCENARIOS
 from app.core.policies import RuleBasedPolicy, SemanticEnhancedPolicy, RandomPolicy
 from app.core.rl_agents import DiscreteSoftQAgent, SoftQPolicy
-from app.core.rolling_optimizer import RollingHorizonOptimizerPolicy
+from app.core.rolling_optimizer import EnhancedRollingHorizonPolicy, RollingHorizonOptimizerPolicy
 from app.core.simulation import run_policy
 
 OUT_DIR = ROOT / "outputs" / "chapter6"
@@ -78,6 +78,7 @@ def evaluate_scenario(scenario) -> list[dict]:
         RuleBasedPolicy(),
         SemanticEnhancedPolicy(),
         RollingHorizonOptimizerPolicy(data=data),
+        EnhancedRollingHorizonPolicy(data=data),
         RandomPolicy(seed=scenario.seed),
     ] + load_softq_policies()
     rows = []
