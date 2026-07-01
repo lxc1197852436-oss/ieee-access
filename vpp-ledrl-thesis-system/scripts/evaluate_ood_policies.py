@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -39,6 +40,36 @@ METRIC_KEYS = [
     "low_price_charge_rate",
     "event_count",
 ]
+
+
+class ProgressBar:
+    """Tiny stdlib-only progress bar (no tqdm dependency)."""
+
+    def __init__(self, total: int, label: str = "", width: int = 28):
+        self.total = max(1, total)
+        self.label = label
+        self.width = width
+        self.count = 0
+        self.start = time.time()
+
+    def update(self, n: int = 1) -> None:
+        self.count = min(self.total, self.count + n)
+        elapsed = time.time() - self.start
+        frac = self.count / self.total
+        filled = int(self.width * frac)
+        bar = "#" * filled + "-" * (self.width - filled)
+        rate = self.count / elapsed if elapsed > 0 else 0.0
+        eta = (self.total - self.count) / rate if rate > 0 else 0.0
+        sys.stdout.write(
+            f"\r{self.label} [{bar}] {self.count}/{self.total} "
+            f"({frac*100:5.1f}%) {elapsed:5.1f}s elapsed, eta {eta:5.1f}s"
+        )
+        sys.stdout.flush()
+
+    def finish(self) -> None:
+        elapsed = time.time() - self.start
+        sys.stdout.write(f"\r{self.label} [{'#'*self.width}] {self.total}/{self.total} (100.0%) {elapsed:5.1f}s done\n")
+        sys.stdout.flush()
 
 
 def load_ood_scenarios() -> list[tuple[str, str, str, pd.DataFrame]]:
@@ -107,27 +138,33 @@ def main() -> None:
     else:
         print(f"WARN: checkpoint not found: {ckpt}")
 
+    # Build the full evaluation task list so the progress bar covers everything.
+    tasks: list[tuple] = []
     for scenario_id, name, stress, data in scenarios:
-        for policy, policy_name in [
-            (RuleBasedPolicy(), "Rule-Based"),
-            (RollingHorizonOptimizerPolicy(data=data), "Rolling-Horizon"),
-            (EnhancedRollingHorizonPolicy(data=data), "Enhanced Rolling-Horizon"),
-        ]:
-            row = evaluate_policy(policy, data, scenario_id, name, stress, policy_name)
-            rows.append(row)
-            print(
-                f"{scenario_id} {policy_name}: reward={row['total_reward_yuan']:.1f} "
-                f"throughput={row['battery_throughput_mwh']:.2f} "
-                f"high_discharge={row['high_price_discharge_rate']:.3f}"
-            )
-        if trained is not None:
-            row = evaluate_policy(trained, data, scenario_id, name, stress, "SAC-Numeric + numeric safety layer")
-            rows.append(row)
-            print(
-                f"{scenario_id} SAC-Numeric + numeric safety layer: reward={row['total_reward_yuan']:.1f} "
-                f"throughput={row['battery_throughput_mwh']:.2f} "
-                f"high_discharge={row['high_price_discharge_rate']:.3f}"
-            )
+        for policy_name in ["Rule-Based", "Rolling-Horizon", "Enhanced Rolling-Horizon"] + (
+            ["SAC-Numeric + numeric safety layer"] if trained is not None else []
+        ):
+            tasks.append((scenario_id, name, stress, data, policy_name))
+
+    bar = ProgressBar(len(tasks), label="OOD eval")
+    for scenario_id, name, stress, data, policy_name in tasks:
+        if policy_name == "Rule-Based":
+            policy = RuleBasedPolicy()
+        elif policy_name == "Rolling-Horizon":
+            policy = RollingHorizonOptimizerPolicy(data=data)
+        elif policy_name == "Enhanced Rolling-Horizon":
+            policy = EnhancedRollingHorizonPolicy(data=data)
+        else:
+            policy = trained
+        row = evaluate_policy(policy, data, scenario_id, name, stress, policy_name)
+        rows.append(row)
+        bar.update()
+        print(
+            f"\n  {scenario_id} {policy_name}: reward={row['total_reward_yuan']:.1f} "
+            f"throughput={row['battery_throughput_mwh']:.2f} "
+            f"high_discharge={row['high_price_discharge_rate']:.3f}"
+        )
+    bar.finish()
 
     write_csv(OUT_PATH, rows)
     print(f"\nSaved OOD evaluation: {OUT_PATH}")

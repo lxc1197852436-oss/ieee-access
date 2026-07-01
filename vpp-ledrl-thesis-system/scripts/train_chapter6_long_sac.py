@@ -6,6 +6,7 @@ import json
 import random
 import re
 import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -31,6 +32,38 @@ from scripts.run_chapter6_experiments import scenario_data
 
 OUT_DIR = ROOT / "outputs" / "chapter6_long"
 AI_SCENARIOS = ROOT / "data" / "processed" / "chapter6_ai_semantic_scenarios.csv"
+
+
+class ProgressBar:
+    """Tiny stdlib-only progress bar (no tqdm dependency)."""
+
+    def __init__(self, total: int, label: str = "", width: int = 28):
+        self.total = max(1, total)
+        self.label = label
+        self.width = width
+        self.count = 0
+        self.start = time.time()
+
+    def update(self, n: int = 1) -> None:
+        self.count = min(self.total, self.count + n)
+        elapsed = time.time() - self.start
+        frac = self.count / self.total
+        filled = int(self.width * frac)
+        bar = "#" * filled + "-" * (self.width - filled)
+        rate = self.count / elapsed if elapsed > 0 else 0.0
+        eta = (self.total - self.count) / rate if rate > 0 else 0.0
+        sys.stdout.write(
+            f"\r{self.label} [{bar}] {self.count}/{self.total} "
+            f"({frac*100:5.1f}%) {elapsed:6.1f}s elapsed, eta {eta:6.1f}s  "
+        )
+        sys.stdout.flush()
+
+    def finish(self) -> None:
+        elapsed = time.time() - self.start
+        sys.stdout.write(
+            f"\r{self.label} [{'#'*self.width}] {self.total}/{self.total} (100.0%) {elapsed:6.1f}s done\n"
+        )
+        sys.stdout.flush()
 
 
 def parse_seeds(raw: str) -> list[int]:
@@ -216,6 +249,7 @@ def train_one(
 ) -> list[dict]:
     logs: list[dict] = []
     update_count = 0
+    bar = ProgressBar(args.episodes, label=f"train {agent.name} seed={seed}")
     for ep in range(1, args.episodes + 1):
         scenario_id, rows = train_data[(ep + seed) % len(train_data)]
         env = VPPEnv(rows)
@@ -257,12 +291,14 @@ def train_one(
             "mean_actor_loss": mean_actor_loss,
         }
         logs.append(row)
+        bar.update()
         if ep == 1 or ep % args.log_every == 0 or ep == args.episodes:
             print(
-                f"{agent.name} seed={seed} episode={ep}/{args.episodes} "
+                f"\n  {agent.name} seed={seed} episode={ep}/{args.episodes} "
                 f"raw_reward={ep_reward:.1f} learning_reward={ep_learning_reward:.2f} "
                 f"updates={len(losses)} replay={agent.sac.replay.size}"
             )
+    bar.finish()
     return logs
 
 
@@ -388,8 +424,8 @@ def main() -> None:
     parser.add_argument(
         "--semantic-actor-loss-weight",
         type=float,
-        default=0.25,
-        help="Actor regularization weight that makes LE-DRL-SAC learn risk-consistent actions from semantic features.",
+        default=3.0,
+        help="Actor regularization weight that makes LE-DRL-SAC learn risk-consistent actions from semantic features. Raised from 0.25 to 3.0 after storage_bias refactor caused policy collapse at the old weight.",
     )
     parser.add_argument(
         "--numeric-actor-loss-weight",

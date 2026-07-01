@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +15,38 @@ from app.core.simulation import run_policy
 from scripts.run_chapter6_experiments import scenario_data
 
 OUT_PATH = ROOT / "outputs" / "chapter6" / "enhanced_rolling_sweep.csv"
+
+
+class ProgressBar:
+    """Tiny stdlib-only progress bar (no tqdm dependency)."""
+
+    def __init__(self, total: int, label: str = "", width: int = 28):
+        self.total = max(1, total)
+        self.label = label
+        self.width = width
+        self.count = 0
+        self.start = time.time()
+
+    def update(self, n: int = 1) -> None:
+        self.count = min(self.total, self.count + n)
+        elapsed = time.time() - self.start
+        frac = self.count / self.total
+        filled = int(self.width * frac)
+        bar = "#" * filled + "-" * (self.width - filled)
+        rate = self.count / elapsed if elapsed > 0 else 0.0
+        eta = (self.total - self.count) / rate if rate > 0 else 0.0
+        sys.stdout.write(
+            f"\r{self.label} [{bar}] {self.count}/{self.total} "
+            f"({frac*100:5.1f}%) {elapsed:6.1f}s elapsed, eta {eta:6.1f}s  "
+        )
+        sys.stdout.flush()
+
+    def finish(self) -> None:
+        elapsed = time.time() - self.start
+        sys.stdout.write(
+            f"\r{self.label} [{'#'*self.width}] {self.total}/{self.total} (100.0%) {elapsed:6.1f}s done\n"
+        )
+        sys.stdout.flush()
 
 PARAMS = [
     {
@@ -76,6 +109,8 @@ def summarize(rows: list[dict]) -> None:
 
 def main() -> None:
     rows: list[dict] = []
+    total = len(PARAMS) * len(SCENARIOS)
+    bar = ProgressBar(total, label="Rolling sweep")
     for params in PARAMS:
         for scenario in SCENARIOS:
             data = scenario_data(scenario)
@@ -91,14 +126,15 @@ def main() -> None:
                 **{k: metrics[k] for k in METRIC_KEYS},
             }
             rows.append(row)
+            bar.update()
             print(
-                params["tag"],
-                scenario.scenario_id,
-                f"reward={row['total_reward_yuan']:.1f}",
-                f"cvar={row['cvar_5_yuan']:.1f}",
-                f"throughput={row['battery_throughput_mwh']:.2f}",
-                f"final_soc={row['final_soc']:.3f}",
+                f"\n  {params['tag']} {scenario.scenario_id} "
+                f"reward={row['total_reward_yuan']:.1f} "
+                f"cvar={row['cvar_5_yuan']:.1f} "
+                f"throughput={row['battery_throughput_mwh']:.2f} "
+                f"final_soc={row['final_soc']:.3f}"
             )
+    bar.finish()
     write_csv(OUT_PATH, rows)
     summarize(rows)
     print(f"Saved: {OUT_PATH}")
