@@ -58,6 +58,7 @@ def build_agent(model_name: str, args: argparse.Namespace) -> LEDRLAgent:
         "gamma": args.gamma,
         "device": args.device,
         "use_ai_semantics": args.use_ai_semantics,
+        "numeric_actor_loss_weight": args.numeric_actor_loss_weight,
     }
     if model_name == "SAC-Numeric":
         return LEDRLAgent(LEDRLConfig(include_semantic=False, name="SAC-Numeric", **common))
@@ -122,6 +123,33 @@ def learning_reward(raw_reward: float, info: dict, env: VPPEnv, args: argparse.N
     return float(value * args.reward_scale)
 
 
+def dispatch_alignment_reward(state: dict, action_mw: float, agent: LEDRLAgent, args: argparse.Namespace) -> float:
+    if args.dispatch_aux_reward_scale <= 0.0:
+        return 0.0
+
+    hour = float(state["hour"])
+    price = float(state["price_yuan_mwh"])
+    pv_surplus = float(state["pv_mw"]) - float(state["load_mw"])
+    soc = float(state["soc"])
+    action_norm = float(np.clip(action_mw / agent.config.action_limit, -1.0, 1.0))
+
+    charge_need = 0.0
+    discharge_need = 0.0
+    if price < args.low_price_threshold and soc < 0.82:
+        charge_need = max(charge_need, 0.65)
+    if 10.0 <= hour <= 15.5 and pv_surplus > 0.2 and soc < 0.88:
+        charge_need = max(charge_need, 0.45)
+    if price > args.high_price_threshold and soc > 0.18:
+        discharge_need = max(discharge_need, 0.75)
+    if 18.0 <= hour <= 22.0 and soc > 0.30:
+        discharge_need = max(discharge_need, 0.45)
+
+    target = discharge_need - charge_need
+    if abs(target) < 1e-6:
+        return 0.0
+    return float(args.dispatch_aux_reward_scale * target * action_norm)
+
+
 def semantic_auxiliary_reward(state: dict, action_mw: float, agent: LEDRLAgent, args: argparse.Namespace) -> float:
     """Risk-aware auxiliary reward for LE-DRL-SAC training only.
 
@@ -182,6 +210,7 @@ def train_one(
             action = agent.act(state, deterministic=False)
             next_state, reward, done, info = env.step(action)
             shaped_reward = learning_reward(reward, info, env, args)
+            shaped_reward += dispatch_alignment_reward(state, info["actual_action_mw"], agent, args)
             shaped_reward += semantic_auxiliary_reward(state, info["actual_action_mw"], agent, args)
             agent.sac.add_transition(state_vec, action, shaped_reward, agent.encode(next_state), done)
             if agent.sac.total_steps % args.update_interval == 0:
@@ -302,6 +331,9 @@ def main() -> None:
     parser.add_argument("--gamma", type=float, default=0.97)
     parser.add_argument("--reward-mode", choices=["advantage", "raw"], default="advantage")
     parser.add_argument("--reward-scale", type=float, default=0.01)
+    parser.add_argument("--dispatch-aux-reward-scale", type=float, default=0.0)
+    parser.add_argument("--low-price-threshold", type=float, default=260.0)
+    parser.add_argument("--high-price-threshold", type=float, default=520.0)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--use-ai-semantics", action="store_true", help="Use AI-enriched semantic columns if available.")
     parser.add_argument(
@@ -328,6 +360,18 @@ def main() -> None:
         default=0.25,
         help="Actor regularization weight that makes LE-DRL-SAC learn risk-consistent actions from semantic features.",
     )
+    parser.add_argument(
+        "--numeric-actor-loss-weight",
+        type=float,
+        default=0.0,
+        help="Optional actor regularization weight for numeric dispatch behavior.",
+    )
+    parser.add_argument(
+        "--models",
+        type=str,
+        default="SAC-Numeric,LE-DRL-SAC,LE-DRL w/o Text",
+        help="Comma-separated model names to train.",
+    )
     parser.add_argument("--log-every", type=int, default=10)
     args = parser.parse_args()
 
@@ -339,7 +383,7 @@ def main() -> None:
     all_trajectories: list[dict] = []
     checkpoints: list[dict] = []
 
-    models = ["SAC-Numeric", "LE-DRL-SAC", "LE-DRL w/o Text"]
+    models = [x.strip() for x in args.models.split(",") if x.strip()]
     for seed in seeds:
         for model in models:
             set_seed(seed)

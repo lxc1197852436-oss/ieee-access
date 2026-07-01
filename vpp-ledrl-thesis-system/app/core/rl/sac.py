@@ -36,6 +36,7 @@ class SACConfig:
     warmup_steps: int = 500
     device: str = "cpu"
     semantic_actor_loss_weight: float = 0.0
+    numeric_actor_loss_weight: float = 0.0
 
 
 class MLP(nn.Module):
@@ -151,6 +152,11 @@ class SACAgent:
         q1_pi, q2_pi = self.critic(states, new_actions)
         actor_loss = (cfg.alpha * logp - torch.min(q1_pi, q2_pi)).mean()
         semantic_actor_loss = torch.tensor(0.0, device=self.device)
+        numeric_actor_loss = torch.tensor(0.0, device=self.device)
+        if cfg.numeric_actor_loss_weight > 0.0:
+            numeric_targets = numeric_target_actions(states, cfg.action_limit)
+            numeric_actor_loss = F.mse_loss(new_actions, numeric_targets)
+            actor_loss = actor_loss + cfg.numeric_actor_loss_weight * numeric_actor_loss
         if cfg.semantic_actor_loss_weight > 0.0 and states.shape[1] >= 12:
             semantic_targets = semantic_target_actions(states, cfg.action_limit)
             semantic_actor_loss = F.mse_loss(new_actions, semantic_targets)
@@ -167,6 +173,7 @@ class SACAgent:
             "critic_loss": float(critic_loss.item()),
             "actor_loss": float(actor_loss.item()),
             "semantic_actor_loss": float(semantic_actor_loss.item()),
+            "numeric_actor_loss": float(numeric_actor_loss.item()),
         }
 
     def save(self, path: str | Path) -> Path:
@@ -194,6 +201,32 @@ class SACAgent:
         agent.critic.load_state_dict(payload["critic"])
         agent.critic_target.load_state_dict(payload["critic_target"])
         return agent
+
+
+def numeric_target_actions(states, action_limit: float):
+    """Build differentiable action targets from numeric dispatch features.
+
+    Encoded state layout comes from StateEncoder:
+    load index 0, PV index 1, price_norm index 2, SOC index 4, hour sin/cos
+    indices 5:7. Positive action discharges; negative action charges.
+    """
+    price_norm = states[:, 2:3]
+    soc = states[:, 4:5]
+    hour_sin = states[:, 5:6]
+    hour_cos = states[:, 6:7]
+
+    # Smooth numeric dispatch prior: charge at low prices and discharge at high
+    # prices/evening peak while respecting SOC headroom.
+    low_price = torch.sigmoid((-0.18 - price_norm) * 8.0)
+    high_price = torch.sigmoid((price_norm - 1.00) * 6.0)
+    evening = torch.sigmoid((-hour_cos - 0.15) * 5.0) * torch.sigmoid((-hour_sin - 0.35) * 5.0)
+    can_charge = torch.sigmoid((0.86 - soc) * 20.0)
+    can_discharge = torch.sigmoid((soc - 0.20) * 20.0)
+
+    charge_need = low_price * 0.70 * can_charge
+    discharge_need = torch.maximum(high_price * 0.85, evening * 0.45) * can_discharge
+    target = (discharge_need - charge_need) * float(action_limit) * 0.8
+    return torch.clamp(target, -float(action_limit), float(action_limit))
 
 
 def semantic_target_actions(states, action_limit: float):

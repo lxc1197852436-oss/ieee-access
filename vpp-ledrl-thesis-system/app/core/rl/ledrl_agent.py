@@ -27,6 +27,7 @@ class LEDRLConfig:
     semantic_guidance_weight: float = 0.0
     semantic_guidance_power: float = 1.6
     semantic_actor_loss_weight: float = 0.0
+    numeric_actor_loss_weight: float = 0.0
 
 
 class LEDRLAgent:
@@ -57,6 +58,7 @@ class LEDRLAgent:
                 warmup_steps=config.warmup_steps,
                 device=config.device,
                 semantic_actor_loss_weight=config.semantic_actor_loss_weight,
+                numeric_actor_loss_weight=config.numeric_actor_loss_weight,
             )
         )
 
