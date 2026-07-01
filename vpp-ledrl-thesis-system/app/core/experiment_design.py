@@ -85,6 +85,12 @@ BASELINE_MODELS = [
         "chapter": "正式核心基线",
     },
     {
+        "model_id": "sac_numeric_safety",
+        "name": "SAC-Numeric + numeric safety layer",
+        "description": "仅使用数值状态和确定性数值安全层的SAC诊断基线，用于隔离安全层与文本语义贡献。",
+        "chapter": "正式消融实验",
+    },
+    {
         "model_id": "ledrl_sac",
         "name": "LE-DRL-SAC",
         "description": "本文核心方法，使用数值状态和文本语义增强状态。",

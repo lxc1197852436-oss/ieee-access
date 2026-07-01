@@ -26,6 +26,8 @@ class LEDRLConfig:
     use_ai_semantics: bool = False
     semantic_guidance_weight: float = 0.0
     semantic_guidance_power: float = 1.6
+    numeric_guidance_weight: float = 0.0
+    numeric_guidance_power: float = 1.6
     semantic_actor_loss_weight: float = 0.0
     numeric_actor_loss_weight: float = 0.0
 
@@ -77,12 +79,17 @@ class LEDRLAgent:
 
     def _apply_semantic_guidance(self, state: dict, base_action: float) -> float:
         cfg = self.config
-        weight = float(np.clip(cfg.semantic_guidance_weight, 0.0, 1.0))
-        if not cfg.include_semantic or cfg.semantic_mode != "native" or weight <= 0.0:
-            return self._clip_to_feasible(state, base_action)
+        action = float(base_action)
+        numeric_weight = float(np.clip(cfg.numeric_guidance_weight, 0.0, 1.0))
+        if numeric_weight > 0.0:
+            numeric_prior = self._numeric_prior_action(state)
+            action = (1.0 - numeric_weight) * action + numeric_weight * numeric_prior
 
-        prior = self._semantic_prior_action(state)
-        action = (1.0 - weight) * float(base_action) + weight * prior
+        semantic_weight = float(np.clip(cfg.semantic_guidance_weight, 0.0, 1.0))
+        if cfg.include_semantic and cfg.semantic_mode == "native" and semantic_weight > 0.0:
+            semantic_prior = self._semantic_prior_action(state)
+            action = (1.0 - semantic_weight) * action + semantic_weight * semantic_prior
+
         return self._clip_to_feasible(state, action)
 
     def _clip_to_feasible(self, state: dict, action: float) -> float:
@@ -95,6 +102,31 @@ class LEDRLAgent:
         high = min(self.config.action_limit, max_discharge_mw)
         low = -min(self.config.action_limit, max_charge_mw)
         return float(np.clip(action, low, high))
+
+    def _numeric_prior_action(self, state: dict) -> float:
+        cfg = self.config
+        price = float(state["price_yuan_mwh"])
+        soc = float(state["soc"])
+        hour = float(state["hour"])
+        pv_surplus = float(state["pv_mw"]) - float(state["load_mw"])
+        max_power = min(cfg.action_limit, cfg.numeric_guidance_power)
+
+        charge_score = 0.0
+        discharge_score = 0.0
+        if pv_surplus > 0.2 and soc < 0.88:
+            charge_score = max(charge_score, 0.55)
+        if price < 260.0 and soc < 0.82:
+            charge_score = max(charge_score, 0.75)
+        if price > 520.0 and soc > 0.18:
+            discharge_score = max(discharge_score, 0.85)
+        if 18.0 <= hour <= 22.0 and soc > 0.30:
+            discharge_score = max(discharge_score, 0.45)
+
+        if charge_score <= 0.0 and discharge_score <= 0.0:
+            return 0.0
+        if charge_score >= discharge_score:
+            return -max_power * min(1.0, charge_score)
+        return max_power * min(1.0, discharge_score)
 
     def _semantic_prior_action(self, state: dict) -> float:
         """Policy prior derived from text semantics and current observable state.

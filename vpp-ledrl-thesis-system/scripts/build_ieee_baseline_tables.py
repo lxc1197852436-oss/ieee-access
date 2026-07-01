@@ -21,6 +21,8 @@ IEEE_FIG_DIR = REPO_ROOT / "ieee_pkg" / "ieee_access_vpp_ledrl_20260630" / "figu
 LONG_FALLBACK_PATH = IEEE_FIG_DIR / "evaluation_aggregate.csv"
 SWEEP_PATH = ROOT / "outputs" / "chapter6_long" / "prior_weight_sweep_summary.csv"
 SWEEP_FALLBACK_PATH = IEEE_FIG_DIR / "prior_weight_sweep_summary.csv"
+NUMERIC_GUIDANCE_SWEEP_PATH = ROOT / "outputs" / "chapter6_long" / "sac_numeric_guidance_sweep.csv"
+NUMERIC_GUIDANCE_SWEEP_TAG = "numeric_guidance_100"
 
 METRICS = [
     "total_reward_yuan_mean",
@@ -36,6 +38,7 @@ CORE_ORDER = [
     "Rolling-Horizon",
     "Enhanced Rolling-Horizon",
     "SAC-Numeric",
+    "SAC-Numeric + numeric safety layer",
     "LE-DRL w/o Text",
     "LE-DRL-SAC",
 ]
@@ -85,7 +88,7 @@ def load_classical() -> pd.DataFrame:
 
 
 def load_long_rl() -> pd.DataFrame:
-    path = LONG_PATH if LONG_PATH.exists() else LONG_FALLBACK_PATH
+    path = LONG_FALLBACK_PATH if LONG_FALLBACK_PATH.exists() else LONG_PATH
     if not path.exists():
         raise FileNotFoundError(f"Missing long RL results: {LONG_PATH} or {LONG_FALLBACK_PATH}")
     long_df = pd.read_csv(path)
@@ -102,6 +105,16 @@ def load_long_rl() -> pd.DataFrame:
             "low_price_charge_rate_mean",
         ]
     ]
+
+
+def load_numeric_safety_layer() -> pd.DataFrame:
+    if not NUMERIC_GUIDANCE_SWEEP_PATH.exists():
+        return pd.DataFrame()
+    sweep = pd.read_csv(NUMERIC_GUIDANCE_SWEEP_PATH)
+    sweep = sweep[sweep["tag"] == NUMERIC_GUIDANCE_SWEEP_TAG].copy()
+    if sweep.empty:
+        return pd.DataFrame()
+    return normalize_classical(sweep)
 
 
 def load_safety_layer() -> pd.DataFrame:
@@ -153,7 +166,7 @@ def copy_if_exists(src: Path, dst: Path) -> None:
 
 def main() -> None:
     IEEE_FIG_DIR.mkdir(parents=True, exist_ok=True)
-    scenario_rows = pd.concat([load_classical(), load_long_rl()], ignore_index=True)
+    scenario_rows = pd.concat([load_classical(), load_long_rl(), load_numeric_safety_layer()], ignore_index=True)
     scenario_rows = scenario_rows[scenario_rows["model"].isin(CORE_ORDER)]
 
     scenario_table = scenario_core_rows(scenario_rows)

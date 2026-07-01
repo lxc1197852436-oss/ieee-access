@@ -62,6 +62,16 @@ def build_agent(model_name: str, args: argparse.Namespace) -> LEDRLAgent:
     }
     if model_name == "SAC-Numeric":
         return LEDRLAgent(LEDRLConfig(include_semantic=False, name="SAC-Numeric", **common))
+    if model_name == "SAC-Numeric + numeric safety layer":
+        return LEDRLAgent(
+            LEDRLConfig(
+                include_semantic=False,
+                name="SAC-Numeric + numeric safety layer",
+                numeric_guidance_weight=args.numeric_guidance_weight,
+                numeric_guidance_power=args.numeric_guidance_power,
+                **common,
+            )
+        )
     if model_name == "LE-DRL-SAC":
         return LEDRLAgent(
             LEDRLConfig(
@@ -70,13 +80,22 @@ def build_agent(model_name: str, args: argparse.Namespace) -> LEDRLAgent:
                 name="LE-DRL-SAC",
                 semantic_guidance_weight=args.semantic_guidance_weight,
                 semantic_guidance_power=args.semantic_guidance_power,
+                numeric_guidance_weight=args.numeric_guidance_weight,
+                numeric_guidance_power=args.numeric_guidance_power,
                 semantic_actor_loss_weight=args.semantic_actor_loss_weight,
                 **common,
             )
         )
     if model_name == "LE-DRL w/o Text":
         return LEDRLAgent(
-            LEDRLConfig(include_semantic=True, semantic_mode="zero", name="LE-DRL w/o Text", **common)
+            LEDRLConfig(
+                include_semantic=True,
+                semantic_mode="zero",
+                name="LE-DRL w/o Text",
+                numeric_guidance_weight=args.numeric_guidance_weight,
+                numeric_guidance_power=args.numeric_guidance_power,
+                **common,
+            )
         )
     raise ValueError(f"Unknown model: {model_name}")
 
@@ -347,6 +366,18 @@ def main() -> None:
         type=float,
         default=1.6,
         help="Maximum MW of semantic prior action before blending.",
+    )
+    parser.add_argument(
+        "--numeric-guidance-weight",
+        type=float,
+        default=0.0,
+        help="Optional deterministic numeric prior blend weight for numeric baseline diagnostics.",
+    )
+    parser.add_argument(
+        "--numeric-guidance-power",
+        type=float,
+        default=1.6,
+        help="Maximum MW of numeric prior action before blending.",
     )
     parser.add_argument(
         "--semantic-aux-reward-scale",
