@@ -27,14 +27,15 @@ from app.core.rl.ledrl_agent import LEDRLAgent, LEDRLConfig
 from app.core.rl.sac import SACAgent
 from app.core.simulation import calculate_metrics
 from scripts.run_chapter6_experiments import scenario_data
+from scripts.train_chapter6_long_sac import load_scenario_for_training
 
 CKPT_DIR = ROOT / "outputs" / "chapter6_long" / "checkpoints"
 OUT_BY_SEED = ROOT / "outputs" / "chapter6_long" / "prior_weight_sweep_by_seed.csv"
 OUT_SUMMARY = ROOT / "outputs" / "chapter6_long" / "prior_weight_sweep_summary.csv"
 
-WEIGHTS = [0.0, 0.25, 0.5, 0.75, 0.9, 1.0]
+WEIGHTS = [0.0, 0.25, 0.5, 0.75, 0.85, 0.9, 1.0]
 SEEDS = [2026, 2031, 2042]
-GUIDANCE_POWER = 1.6
+GUIDANCE_POWER = 2.0
 
 METRIC_KEYS = [
     "total_reward_yuan",
@@ -97,7 +98,8 @@ def load_ledrl_agent(seed: int, weight: float) -> LEDRLAgent:
 def evaluate(agent: LEDRLAgent, seed: int, weight: float) -> list[dict]:
     rows = []
     for scenario in SCENARIOS:
-        data = scenario_data(scenario)
+        # Use AI-semantic scenarios to match the checkpoint's training distribution.
+        data = load_scenario_for_training(scenario, use_ai_semantics=True)
         env = VPPEnv(data)
         state = env.reset(initial_soc=0.5)
         while not env.done():

@@ -55,6 +55,34 @@ def collect_events(include_priority1: bool) -> pd.DataFrame:
     return events
 
 
+class ProgressBar:
+    def __init__(self, total: int, label: str = "", width: int = 28):
+        self.total = max(1, total)
+        self.label = label
+        self.width = width
+        self.count = 0
+        self.start = time.time()
+
+    def update(self, n: int = 1) -> None:
+        self.count = min(self.total, self.count + n)
+        elapsed = time.time() - self.start
+        frac = self.count / self.total
+        filled = int(self.width * frac)
+        bar = "#" * filled + "-" * (self.width - filled)
+        rate = self.count / elapsed if elapsed > 0 else 0.0
+        eta = (self.total - self.count) / rate if rate > 0 else 0.0
+        sys.stdout.write(
+            f"\r{self.label} [{bar}] {self.count}/{self.total} "
+            f"({frac*100:5.1f}%) {elapsed:5.1f}s elapsed, eta {eta:5.1f}s  "
+        )
+        sys.stdout.flush()
+
+    def finish(self) -> None:
+        elapsed = time.time() - self.start
+        sys.stdout.write(f"\r{self.label} [{'#'*self.width}] {self.total}/{self.total} (100.0%) {elapsed:5.1f}s done\n")
+        sys.stdout.flush()
+
+
 def assessment_record(row: pd.Series, assessment: AISemanticAssessment) -> dict:
     return {
         "scenario_id": row["scenario_id"],
@@ -115,6 +143,7 @@ def main() -> None:
     events = collect_events(include_priority1=args.include_priority1)
     rows: list[dict] = []
     raw_rows: list[dict] = []
+    bar = ProgressBar(len(events), label="AI semantic")
     for idx, row in events.iterrows():
         context = {
             "scenario_id": row["scenario_id"],
@@ -127,14 +156,16 @@ def main() -> None:
         record = assessment_record(row, assessment)
         rows.append(record)
         raw_rows.append({"index": int(idx), "context": context, "assessment": record})
+        bar.update()
         print(
-            f"{idx + 1}/{len(events)} {row['event_type']} "
-            f"risk={assessment.risk_score:.2f} price={assessment.price_spike_score:.2f} "
+            f"\n  {row['event_type']} risk={assessment.risk_score:.2f} price={assessment.price_spike_score:.2f} "
             f"load={assessment.load_pressure_score:.2f} renewable={assessment.renewable_curtailment_score:.2f} "
-            f"provider={assessment.provider}"
+            f"provider={assessment.provider}",
+            flush=True,
         )
         if args.sleep > 0:
             time.sleep(args.sleep)
+    bar.finish()
 
     event_features = pd.DataFrame(rows)
     write_csv(OUT_DIR / "ai_event_semantic_features.csv", rows)

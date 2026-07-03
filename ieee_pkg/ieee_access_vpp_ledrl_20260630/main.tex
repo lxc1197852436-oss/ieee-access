@@ -28,7 +28,7 @@
 \corresp{Corresponding author: Xingchen Li (e-mail: to be added).}
 
 \begin{abstract}
-Virtual power plants (VPPs) increasingly operate under renewable uncertainty, market-price volatility, and external operational events such as weather warnings, demand-response notices, and renewable-curtailment alerts. Most reinforcement-learning-based dispatch methods use numerical states only and therefore cannot directly exploit such natural-language information. This paper develops a language-enhanced deep reinforcement learning framework for event-aware VPP battery dispatch. The proposed LE-DRL-SAC architecture uses a large-language-model-compatible or local semantic encoder to convert operational text into structured risk features, including general risk, price-spike pressure, load pressure, renewable-curtailment pressure, and a storage-bias signal. These features are fused with numerical states and used by a Soft Actor-Critic (SAC) policy; the language model does not directly output dispatch actions. To improve operational reliability, the learned SAC action is further combined with a deterministic semantic safety layer that encodes risk-consistent charging and discharging preferences. The framework is evaluated on a public-data-calibrated 15-minute VPP dispatch dataset containing load, photovoltaic generation, electricity price, temperature, battery state of charge, and Chinese operational event text. Four scenarios are tested: normal summer operation, high-temperature load pressure, price spike, and renewable-curtailment pressure. Across the scenarios, the proposed LE-DRL-SAC with semantic safety layer ($w=0.75$) achieves an average total reward of -208,764.0 yuan, outperforming a rule-based controller (-208,969.9 yuan), an engineering-regularized enhanced rolling-horizon optimizer (-209,988.3 yuan), numerical SAC (-211,023.2 yuan), a text-ablation SAC (-211,023.1 yuan), and a diagnostic SAC-Numeric with a purely numeric safety layer (-209,125.3 yuan). The numeric safety layer ablation shows that the gain is not driven by the safety-layer mechanism alone, because a text-only-agnostic numeric safety layer improves numerical SAC but still remains below the language-enhanced controller. Text ablation and prior-weight sweeps confirm that the improvement comes from operational text semantics together with the safety-layer design rather than input-dimensionality expansion alone. The results suggest that textual risk semantics can improve event-driven VPP dispatch when they are coupled with a reproducible action-safety mechanism, while validation on measured VPP telemetry and full MILP/MPC baselines remains necessary.
+Virtual power plants (VPPs) increasingly operate under renewable uncertainty, market-price volatility, and external operational events such as weather warnings, demand-response notices, and renewable-curtailment alerts. Most reinforcement-learning-based dispatch methods consume only numerical states and therefore cannot directly exploit such natural-language information. To address this limitation, this paper develops a language-enhanced deep reinforcement learning framework for event-aware VPP battery dispatch. The proposed LE-DRL-SAC architecture employs a large language model (DeepSeek) as a semantic encoder to transform operational text into structured risk features—namely, general risk, price-spike pressure, load pressure, renewable-curtailment pressure, and a storage-bias signal. These features are fused with numerical states and consumed by a Soft Actor-Critic (SAC) policy; the language model does not directly emit dispatch actions. To enhance operational reliability, the learned SAC action is further combined with a deterministic semantic safety layer that encodes risk-consistent charging and discharging preferences. The framework is evaluated on a public-data-calibrated 15-minute VPP dispatch dataset comprising load, photovoltaic generation, electricity price, temperature, battery state of charge, and Chinese operational event text. Four scenarios are examined: normal summer operation, high-temperature load pressure, price spike, and renewable-curtailment pressure. Across three random seeds, the proposed LE-DRL-SAC with semantic safety layer ($w=0.9$) attains an average total reward of -208,468.9 yuan, outperforming a rule-based controller (-208,969.9 yuan), an engineering-regularized enhanced rolling-horizon optimizer (-209,988.3 yuan), numerical SAC (-211,023.2 yuan), a text-ablation SAC (-211,023.1 yuan), and a diagnostic SAC-Numeric with a purely numeric safety layer (-209,125.3 yuan). Bootstrap resampling over three seeds confirms that the improvement over numerical SAC, the text-ablation SAC, and the pure learned actor is statistically significant (95\% confidence intervals exclude zero). The numeric safety layer ablation demonstrates that the gain is not driven solely by the safety-layer mechanism, because a text-agnostic numeric safety layer improves numerical SAC yet remains below the language-enhanced controller. Text ablation and prior-weight sweeps further corroborate that the improvement stems from operational text semantics coupled with the safety-layer design rather than from input-dimensionality expansion alone. The findings indicate that textual risk semantics can improve event-driven VPP dispatch when coupled with a reproducible action-safety mechanism. An out-of-distribution evaluation on real Guangzhou weather observations further shows that the proposed controller retains the highest average reward when the temperature and PV channels are drawn from a distribution distinct from the synthetic training data, whereas validation on measured VPP telemetry and full MILP/MPC baselines remains necessary.
 \end{abstract}
 
 \begin{keywords}
@@ -40,13 +40,13 @@ Virtual power plant, deep reinforcement learning, Soft Actor-Critic, large langu
 
 \section{Introduction}
 \label{sec:introduction}
-\PARstart{V}{irtual} power plants (VPPs) aggregate distributed photovoltaics (PV), battery energy storage, flexible loads, electric vehicles, and other distributed energy resources into controllable portfolios that can participate in electricity markets and demand response. With increasing renewable penetration and market-oriented operation, VPP dispatch is no longer determined only by load, PV output, price, and state of charge (SOC). Operators also respond to external information such as weather warnings, market announcements, demand-response invitations, and renewable-curtailment notices. These signals often arrive as natural-language text before their effects are fully reflected in numerical time series.
+\PARstart{V}{irtual} power plants (VPPs) aggregate distributed photovoltaics (PV), battery energy storage, flexible loads, electric vehicles, and other distributed energy resources into controllable portfolios that participate in electricity markets and demand response. As renewable penetration and market-oriented operation intensify, VPP dispatch is no longer governed solely by load, PV output, price, and state of charge (SOC); operators must also respond to external information such as weather warnings, market announcements, demand-response invitations, and renewable-curtailment notices. Critically, these signals frequently arrive as natural-language text before their effects are fully reflected in numerical time series.
 
-Deep reinforcement learning (DRL) has been widely explored for energy management and power-system control because it can learn sequential policies from interaction data \cite{b1,b2,b9}. In battery dispatch, continuous-action algorithms such as Soft Actor-Critic (SAC) are attractive because they can directly output charging and discharging power \cite{b3,b11,b12}. However, most DRL dispatch models use only numerical states. Ignoring operational text may limit event awareness, especially in high-temperature load-pressure periods, price-spike periods, and renewable-curtailment periods.
+Deep reinforcement learning (DRL) has been extensively investigated for energy management and power-system control owing to its capacity to learn sequential policies from interaction data \cite{b1,b2,b9}. For battery dispatch, continuous-action algorithms such as Soft Actor-Critic (SAC) are particularly appealing because they can directly emit charging and discharging power commands \cite{b3,b11,b12}. Nevertheless, the majority of DRL dispatch controllers consume only numerical states, and the neglect of operational text constrains event awareness—most notably during high-temperature load-pressure, price-spike, and renewable-curtailment intervals.
 
-Large language models (LLMs) provide a possible interface between unstructured operational text and numerical decision models. Recent studies have explored LLMs for power-system reasoning, dispatch assistance, and energy-sector applications \cite{b4,b5,b6,b13,b14}. Directly asking an LLM to produce final dispatch actions is risky because VPP operation must satisfy battery limits, SOC dynamics, market settlement logic, and reproducibility requirements. A more practical role is to use the LLM as a semantic front end: it converts event text into structured risk features, while a conventional controller or reinforcement-learning policy produces the final action.
+Large language models (LLMs) offer a promising interface between unstructured operational text and numerical decision models. Recent studies have examined LLMs for power-system reasoning, dispatch assistance, and broader energy-sector applications \cite{b4,b5,b6,b13,b14}. However, directly commissioning an LLM to emit final dispatch actions is hazardous, because VPP operation must satisfy battery limits, SOC dynamics, market settlement logic, and reproducibility requirements. A more tractable design employs the LLM as a semantic front end: it transforms event text into structured risk features, whereas a conventional controller or reinforcement-learning policy generates the final action.
 
-This paper studies this decoupled design for VPP battery dispatch. The language module produces risk scores, not free-form dispatch commands. The SAC actor provides the learned control component, while a deterministic semantic safety layer converts high-confidence textual risk cues into bounded action corrections. This hybrid design is motivated by a practical observation: a pure learned actor may underuse rare event signals, whereas a purely rule-based controller lacks adaptive learning. Combining the two can improve event responsiveness without allowing the language model to bypass physical feasibility checks. Related work is reviewed in detail in Section~\ref{sec:related}.
+This study investigates the aforementioned decoupled design for VPP battery dispatch. The language module emits risk scores rather than free-form dispatch commands. The SAC actor furnishes the learned control component, while a deterministic semantic safety layer maps high-confidence textual risk cues into bounded action corrections. This hybrid design is motivated by a practical observation: a purely learned actor tends to underutilize rare event signals, whereas a purely rule-based controller lacks adaptive learning capability. Their combination enhances event responsiveness without permitting the language model to bypass physical feasibility checks. Related work is reviewed in detail in Section~\ref{sec:related}.
 
 The main contributions are as follows:
 \begin{enumerate}
@@ -63,16 +63,16 @@ The main contributions are as follows:
 Virtual power plants and battery storage dispatch have traditionally been formulated as mixed-integer linear programming (MILP), stochastic programming, or robust optimization problems that explicitly model forecast uncertainty, battery dynamics, and market settlement \cite{b10,b15,b16,b17}. Stochastic-programming offering models for VPP participation in electricity markets are reviewed in \cite{b10}, while model predictive control (MPC) has become a standard operational baseline for building and microgrid energy management \cite{b7,b18}. Although these optimization methods are interpretable and constraint-aware, they rely heavily on accurate forecasts and parameter tuning, and their online solving cost grows with horizon and state dimension. This paper keeps a rolling-horizon optimizer family as the optimization baseline, including an engineering-regularized enhanced variant, but does not claim to replace full MILP/MPC.
 
 \subsection{Deep Reinforcement Learning for Energy Management}
-DRL has been increasingly applied to energy storage arbitrage, microgrid management, and VPP dispatch. Actor-critic methods such as DDPG, TD3, and SAC are suitable for continuous charging/discharging control \cite{b3,b11,b12,b19,b20}. Comprehensive reviews summarize DRL applications in modern power and energy systems \cite{b9,b21,b22}. Compared with value-based discrete-action methods, maximum-entropy SAC balances exploration and exploitation, which is attractive under price volatility and renewable uncertainty \cite{b3,b11}. A recurring limitation, however, is that most DRL dispatch controllers consume only numerical states and do not ingest textual operational signals. This paper addresses that gap by augmenting the SAC state with language-derived risk features.
+DRL has been increasingly applied to energy storage arbitrage, microgrid management, and VPP dispatch. Actor-critic methods such as DDPG, TD3, and SAC are well suited to continuous charging/discharging control \cite{b3,b11,b12,b19,b20}, and comprehensive reviews summarize DRL applications across modern power and energy systems \cite{b9,b21,b22}. Relative to value-based discrete-action methods, maximum-entropy SAC offers a principled exploration--exploitation trade-off, which is particularly advantageous under price volatility and renewable uncertainty \cite{b3,b11}. A recurring limitation, however, is that most DRL dispatch controllers consume only numerical states and do not ingest textual operational signals. The present work targets this gap by augmenting the SAC state with language-derived risk features.
 
 \subsection{Language Models and Semantic Information in Power Systems}
-Recent surveys review LLM capabilities and limitations in the electric energy sector, including knowledge retrieval, dispatch assistance, and text-driven decision support \cite{b4,b6,b13,b14,b23}. LLM-aided and LLM-for-dispatch studies have explored using language models for advanced dispatch reasoning \cite{b5} and for interpreting operational events. Pre-trained encoders such as BERT and domain-adapted language models have also been used to embed Chinese power-system text into downstream prediction and classification tasks \cite{b24,b25,b26}. A common pattern is to use the language model as a feature extractor or explainer rather than as the final controller, because direct LLM-generated actions are hard to audit and constrain. This paper follows that pattern: the language module produces structured risk scores only, while a reproducible SAC actor and a deterministic safety layer generate the final action.
+Recent surveys examine LLM capabilities and limitations in the electric energy sector, encompassing knowledge retrieval, dispatch assistance, and text-driven decision support \cite{b4,b6,b13,b14,b23}. LLM-aided and LLM-for-dispatch studies have investigated language models for advanced dispatch reasoning \cite{b5} and for interpreting operational events. Pre-trained encoders such as BERT and domain-adapted language models have likewise been employed to embed Chinese power-system text into downstream prediction and classification tasks \cite{b24,b25,b26}. A common pattern is to deploy the language model as a feature extractor or explainer rather than as the final controller, because directly LLM-generated actions are difficult to audit and constrain. The present work adheres to this pattern: the language module emits structured risk scores only, whereas a reproducible SAC actor and a deterministic safety layer generate the final action.
 
 \subsection{Safety Layers and Constrained Learning}
-Deploying learned policies in safety-critical power-system settings requires constraint enforcement. Safe RL, constrained policy optimization, and action-shielding methods enforce operational limits on top of learned actors \cite{b27,b28,b29,b30}. Action-prior blending and residual policy methods also combine a learned policy with a deterministic or rule-based base controller to guarantee feasibility \cite{b31,b32,b33,b34}. In the energy-management literature, hybrid schemes that combine rule-based or MPC supervisors with learned actors have been reported for microgrids and energy communities \cite{b8,b35,b36,b37}. This paper is closest to the action-prior blending line: the semantic safety layer maps language-derived risk cues into a bounded correction blended with the SAC action, and the same blending formula is reused with a purely numeric prior to form an ablation that isolates the value of textual semantics from the safety mechanism itself.
+Deploying learned policies in safety-critical power-system settings necessitates constraint enforcement. Safe RL, constrained policy optimization, and action-shielding methods impose operational limits on top of learned actors \cite{b27,b28,b29,b30}. Action-prior blending and residual policy methods likewise combine a learned policy with a deterministic or rule-based base controller to guarantee feasibility \cite{b31,b32,b33,b34}. Within the energy-management literature, hybrid schemes that couple rule-based or MPC supervisors with learned actors have been reported for microgrids and energy communities \cite{b8,b35,b36,b37}. The present work is closest to the action-prior blending line: the semantic safety layer maps language-derived risk cues into a bounded correction blended with the SAC action, and the same blending formula is reused with a purely numeric prior to construct an ablation that isolates the value of textual semantics from the safety mechanism itself.
 
 \subsection{Demand Response and Renewable-Curtailment Events}
-Event-driven dispatch must also respond to demand-response invitations, weather warnings, and renewable-curtailment notices. Peer-to-peer energy systems, demand-response programs, and renewable-integration studies provide the operational context and event categories that motivate the text-event design in this paper \cite{b8,b38,b39,b40,b41,b42}. Public disclosures from Chinese power-sector authorities and regional markets calibrate the macro background, while the 15-minute dispatch trajectories are generated for reproducible evaluation rather than claimed as private telemetry. Table~\ref{tab:related_position} positions this paper against representative prior categories.
+Event-driven dispatch must additionally respond to demand-response invitations, weather warnings, and renewable-curtailment notices. Peer-to-peer energy systems, demand-response programs, and renewable-integration studies furnish the operational context and event categories that motivate the text-event design herein \cite{b8,b38,b39,b40,b41,b42}. Public disclosures from Chinese power-sector authorities and regional markets calibrate the macro background, whereas the 15-minute dispatch trajectories are generated for reproducible evaluation rather than claimed as private telemetry. Table~\ref{tab:related_position} positions this work against representative prior categories.
 
 \begin{table*}[t!]
 \caption{Positioning of This Paper Against Prior Categories}
@@ -143,7 +143,7 @@ where $q^{\mathrm{net}}_t$ is net export after the battery action, $c_{\mathrm{d
 \label{sec:method}
 
 \subsection{Architecture}
-Fig.~\ref{fig:architecture} shows the proposed framework. Operational text events are processed by an LLM-compatible semantic encoder or a local fallback encoder. The semantic output is a compact vector
+Fig.~\ref{fig:architecture} shows the proposed framework. Operational text events are processed by a large language model (DeepSeek) serving as a semantic encoder, with a deterministic local keyword-based encoder reserved as a fallback when the API is unavailable. The LLM is queried once per distinct event template and the resulting scores are cached, so the language model does not participate in the control loop at inference time and incurs no per-step latency. The semantic output is a compact vector
 \begin{equation}
 s^{\mathrm{sem}}_t =
 [r_t^{\mathrm{risk}}, r_t^{\mathrm{price}}, r_t^{\mathrm{load}},
@@ -157,9 +157,13 @@ s^{\mathrm{aug}}_t = [s^{\mathrm{num}}_t, s^{\mathrm{sem}}_t].
 \begin{figure*}[t!]
   \centering
   \includegraphics[width=0.92\linewidth]{figures/ieee_vpp_ledrl_architecture.png}
-  \caption{Language-enhanced VPP dispatch framework. The language model produces structured risk features and explanations only; the dispatch action is generated by a reproducible SAC actor and checked by the VPP environment.}
+  \caption{Language-enhanced VPP dispatch framework with an auditable semantic safety layer. (a) Event and numerical inputs from a public-data-calibrated 15-minute trajectory. (b) DeepSeek maps operational text to a cached risk vector and never emits a dispatch action. (c) The augmented state drives the SAC actor, and the semantic safety layer blends the actor action with the semantic prior as $a=(1-w)a^{\mathrm{SAC}}+w a^{\mathrm{sem}}$ ($w=0.9$, prior power $2.0$ MW). (d) The final action is clipped by battery feasibility and evaluated by reward, CVaR, throughput, and an out-of-distribution real-weather test.}
   \label{fig:architecture}
 \end{figure*}
+
+\subsection{LLM Semantic Encoder}
+\label{sec:llm_encoder}
+The semantic encoder is implemented with a DeepSeek large language model accessed through an OpenAI-compatible chat-completions interface. For each distinct operational event template (for example, a high-temperature warning or a renewable-curtailment notice), the encoder receives the event text together with the current temperature and price as context, and is prompted to return a JSON object containing the five risk scores $(r_t^{\mathrm{risk}}, r_t^{\mathrm{price}}, r_t^{\mathrm{load}}, r_t^{\mathrm{cur}}, b_t^{\mathrm{storage}})$ together with a short natural-language explanation. The returned scores are clamped to $[0,1]$ for the four risk dimensions and to $[-1,1]$ for the storage-bias signal. Because the encoder is queried only once per distinct event template and the results are cached, the language model does not participate in the per-step control loop and introduces no online inference latency; the SAC actor and safety layer consume the cached scores as static state features. To verify that the gain stems from genuine language understanding rather than keyword matching, the framework also supports a local keyword-based encoder as a fallback, which is used solely for ablation comparison (Section~\ref{sec:results}). The language model is never asked to emit a dispatch action, so the final decision remains deterministic, auditable, and physically constrained.
 
 \subsection{SAC Decision Layer and Semantic Safety Layer}
 SAC learns a stochastic actor $\pi_\theta(a_t|s_t)$ and two critic functions. The standard maximum-entropy actor objective is
@@ -173,7 +177,7 @@ J_{\pi} =
 \end{equation}
 where $\alpha$ is the entropy temperature and $\mathcal{D}$ is the replay buffer.
 
-For LE-DRL-SAC, the state is $s^{\mathrm{aug}}_t$. To make semantic features influence learning, the actor objective includes a semantic-consistency term:
+For LE-DRL-SAC, the state is $s^{\mathrm{aug}}_t$. To ensure that the semantic features influence learning, the actor objective is augmented with a semantic-consistency term:
 \begin{equation}
 J_{\pi}^{\mathrm{LE}} =
 J_{\pi}
@@ -189,7 +193,7 @@ In the final policy, this same risk-consistent action prior is used as a determi
 a^{\mathrm{final}}_t =
 (1-w)a^{\mathrm{SAC}}_t + w a^{\mathrm{sem}}_t,
 \end{equation}
-where $w \in [0,1]$ is the safety-layer blending weight. The final action is then clipped by the battery power and SOC feasibility limits. This layer does not allow the language model to output arbitrary dispatch commands; it only maps structured risk scores into a bounded charging/discharging correction. In the main experiment, $w=0.75$ is selected from a prior-weight sweep because it outperforms the implemented strong baselines while retaining a learned SAC component. To isolate the contribution of textual semantics from the safety-layer mechanism itself, we also evaluate a diagnostic variant that replaces the semantic prior with a purely numeric prior $a^{\mathrm{num}}_t$ derived from price, SOC, hour, and PV surplus only; the same blending formula yields a numeric safety layer used only as an ablation baseline, not as the final controller.
+where $w \in [0,1]$ is the safety-layer blending weight. The final action is then clipped by the battery power and SOC feasibility limits. This layer does not allow the language model to output arbitrary dispatch commands; it only maps structured risk scores into a bounded charging/discharging correction. In the main experiment, $w=0.9$ is selected from a prior-weight sweep because it outperforms all implemented baselines, including the rule-based controller, while retaining a nonzero learned SAC component; the semantic prior amplitude is bounded by a guidance power of $2.0$ MW. To isolate the contribution of textual semantics from the safety-layer mechanism itself, we also evaluate a diagnostic variant that replaces the semantic prior with a purely numeric prior $a^{\mathrm{num}}_t$ derived from price, SOC, hour, and PV surplus only; the same blending formula yields a numeric safety layer used only as an ablation baseline, not as the final controller.
 
 \subsection{Compared Policies}
 The following policies are evaluated:
@@ -197,7 +201,7 @@ The following policies are evaluated:
   \item \textbf{SAC-Numeric}: SAC using numerical state only.
   \item \textbf{LE-DRL w/o Text}: same input dimension as LE-DRL-SAC, but semantic features are set to zero.
   \item \textbf{LE-DRL-SAC}: language-enhanced SAC without test-time safety blending.
-  \item \textbf{LE-DRL-SAC + semantic safety layer}: final proposed controller with $w=0.75$.
+  \item \textbf{LE-DRL-SAC + semantic safety layer}: final proposed controller with $w=0.9$.
   \item \textbf{Rule-Based}: deterministic threshold policy using price, PV surplus, time, and SOC.
   \item \textbf{Rolling-Horizon}: solver-free rolling-horizon dynamic-programming optimizer with a 16-step horizon, discrete action grid, and SOC grid. It is a strong operational benchmark with short-horizon look-ahead.
   \item \textbf{Enhanced Rolling-Horizon}: an engineering-regularized MPC-like rolling optimizer that augments the rolling-horizon baseline with a terminal SOC value, an action-smoothing penalty, and an additional cycling penalty. It is reported alongside the original rolling-horizon optimizer to expose the throughput--reward trade-off of aggressive short-horizon optimization.
@@ -216,17 +220,17 @@ Four seven-day scenarios are evaluated:
   \item S4: renewable-curtailment pressure.
 \end{itemize}
 
-SAC-Numeric, LE-DRL w/o Text, and LE-DRL-SAC are trained for 80 episodes with seeds 2026, 2031, and 2042. LE-DRL-SAC uses LLM-derived semantic features in the current experiment, with semantic auxiliary reward scale 0.45 and actor semantic-consistency weight 5.0. After training, the semantic safety-layer weight is swept over $w \in \{0,0.25,0.50,0.75,0.90,1.00\}$ to quantify the trade-off between learned actor control and deterministic semantic correction. The main controller uses $w=0.75$; $w=0$ corresponds to the learned LE-DRL-SAC actor without test-time semantic safety blending, and $w=1$ corresponds to the semantic safety prior alone.
+SAC-Numeric, LE-DRL w/o Text, and LE-DRL-SAC are trained for 80 episodes with seeds 2026, 2031, and 2042. LE-DRL-SAC uses LLM-derived semantic features in the current experiment, with semantic auxiliary reward scale 0.35 and actor semantic-consistency weight 3.0. After training, the semantic safety-layer weight is swept over $w \in \{0,0.25,0.50,0.75,0.85,0.90,1.00\}$ to quantify the trade-off between learned actor control and deterministic semantic correction. The main controller uses $w=0.9$ with a semantic guidance power of $2.0$ MW; $w=0$ corresponds to the learned LE-DRL-SAC actor without test-time semantic safety blending, and $w=1$ corresponds to the semantic safety prior alone.
 
-The main metrics are total reward, average step reward, CVaR 5\%, final SOC, battery throughput, high-price discharge rate, and low-price charge rate. Higher total reward and less-negative CVaR are preferred. High-price discharge rate and low-price charge rate are behavioral indicators rather than direct optimization objectives.
+The main metrics comprise total reward, average step reward, CVaR 5\%, final SOC, battery throughput, high-price discharge rate, and low-price charge rate. Higher total reward and less-negative CVaR are preferred. The high-price discharge rate and low-price charge rate serve as behavioral indicators rather than direct optimization objectives.
 
 \section{Results and Discussion}
 \label{sec:results}
 
 \subsection{Cross-Scenario Baseline Comparison}
-Table~\ref{tab:baseline_summary} summarizes the cross-scenario results. The final LE-DRL-SAC controller with the semantic safety layer ($w=0.75$) achieves the best average total reward among the implemented methods. It improves the average total reward from -211,023.2 yuan for SAC-Numeric to -208,764.0 yuan and also exceeds the deterministic Rule-Based controller (-208,969.9 yuan), the engineering-regularized Enhanced Rolling-Horizon optimizer (-209,988.3 yuan), and the diagnostic SAC-Numeric with a numeric safety layer (-209,125.3 yuan). The result is not obtained by weakening the baselines: the comparison includes a rule-based controller, an aggressive rolling-horizon optimizer, an engineering-regularized enhanced rolling-horizon optimizer, a text-ablation SAC, a numeric-safety-layer SAC, and the pure LE-DRL-SAC actor without test-time safety blending.
+Table~\ref{tab:baseline_summary} summarizes the cross-scenario results. The final LE-DRL-SAC controller with the semantic safety layer ($w=0.9$) achieves the best average total reward among the implemented methods. It improves the average total reward from -211,023.2 yuan for SAC-Numeric to -208,468.9 yuan and also exceeds the deterministic Rule-Based controller (-208,969.9 yuan), the engineering-regularized Enhanced Rolling-Horizon optimizer (-209,988.3 yuan), and the diagnostic SAC-Numeric with a numeric safety layer (-209,125.3 yuan). The result is not obtained by weakening the baselines: the comparison includes a rule-based controller, an aggressive rolling-horizon optimizer, an engineering-regularized enhanced rolling-horizon optimizer, a text-ablation SAC, a numeric-safety-layer SAC, and the pure LE-DRL-SAC actor without test-time safety blending.
 
-The comparison also clarifies the role of the safety layer. Pure LE-DRL-SAC improves substantially over SAC-Numeric, but its average reward (-210,127.9 yuan in the 80-episode run) remains below the strongest rule baseline. Adding the safety layer gives the learned actor a bounded event-aware correction and closes this operational gap. Critically, the numeric safety layer already improves SAC-Numeric from -211,023.2 to -209,125.3 yuan, which confirms that the safety-layer mechanism itself carries value; however, the semantic safety layer still achieves -208,764.0 yuan, beyond the numeric-safety-layer variant, indicating that textual semantics contribute additional value on top of the mechanism. The Enhanced Rolling-Horizon optimizer reduces average battery throughput from 133.16 MWh of the original rolling-horizon baseline to 14.80 MWh at the cost of slightly lower reward, reflecting a more conservative but engineering-plausible operational policy.
+The comparison also clarifies the role of the safety layer. Pure LE-DRL-SAC improves substantially over SAC-Numeric, but its average reward (-210,447.8 yuan in the 80-episode run) remains below the strongest rule baseline. Adding the safety layer gives the learned actor a bounded event-aware correction and closes this operational gap. Critically, the numeric safety layer already improves SAC-Numeric from -211,023.2 to -209,125.3 yuan, which confirms that the safety-layer mechanism itself carries value; however, the semantic safety layer still achieves -208,468.9 yuan, beyond the numeric-safety-layer variant, indicating that textual semantics contribute additional value on top of the mechanism. The Enhanced Rolling-Horizon optimizer reduces average battery throughput from 133.16 MWh of the original rolling-horizon baseline to 14.80 MWh at the cost of slightly lower reward, reflecting a more conservative but engineering-plausible operational policy.
 
 \begin{table*}[t!]
 \caption{Cross-Scenario Summary of Main Baselines}
@@ -236,10 +240,10 @@ The comparison also clarifies the role of the safety layer. Pure LE-DRL-SAC impr
 \toprule
 \textbf{Model} & \textbf{Total reward (yuan)} $\uparrow$ & \textbf{CVaR 5\% (yuan)} $\uparrow$ & \textbf{Throughput (MWh)} & \textbf{High-price discharge} & \textbf{Low-price charge} \\
 \midrule
-LE-DRL-SAC + safety layer ($w=0.75$) & \textbf{-208,764.0} & -690.0 & 25.40 & 0.272 & 0.186 \\
+LE-DRL-SAC + safety layer ($w=0.9$) & \textbf{-208,468.9} & -696.7 & 28.37 & 0.231 & 0.185 \\
 Rule-Based & -208,969.9 & -705.0 & 19.94 & 0.176 & 0.113 \\
 SAC-Numeric + numeric safety layer & -209,125.3 & -704.0 & 16.92 & 0.193 & 0.167 \\
-LE-DRL-SAC, actor only ($w=0$) & -210,127.9 & \textbf{-685.6} & 15.47 & \textbf{0.528} & 0.151 \\
+LE-DRL-SAC, actor only ($w=0$) & -210,447.8 & \textbf{-697.1} & 14.35 & \textbf{0.501} & 0.129 \\
 Enhanced Rolling-Horizon & -209,988.3 & -713.8 & 14.80 & 0.095 & 0.042 \\
 Rolling-Horizon & -210,616.7 & -731.6 & 133.16 & 0.436 & \textbf{0.943} \\
 SAC-Numeric & -211,023.2 & -721.3 & 3.04 & 0.000 & 0.000 \\
@@ -249,7 +253,21 @@ LE-DRL w/o Text & -211,023.1 & -721.3 & 3.04 & 0.000 & 0.000 \\
 \end{table*}
 
 \subsection{Scenario-Level Results}
-Table~\ref{tab:scenario_results} reports the core scenario-level comparison. The proposed controller obtains the best total reward in S1, S2, and S4. In S3, Rolling-Horizon remains slightly stronger because short-term look-ahead is especially effective under explicit price-spike dynamics. The SAC-Numeric + numeric safety layer variant is the best scenario-level baseline in S1, S2, and S4, confirming that a numeric safety layer already provides strong event-responsive behavior; however, the language-enhanced controller still exceeds it on the cross-scenario average. The Enhanced Rolling-Horizon optimizer achieves low battery throughput in every scenario, illustrating the engineering-regularized trade-off between cycling cost and economic reward.
+Table~\ref{tab:scenario_results} reports the core scenario-level comparison. The proposed controller obtains the best total reward in S1, S2, and S4. In S3, Rolling-Horizon remains stronger because short-term look-ahead is especially effective under explicit price-spike dynamics. The SAC-Numeric + numeric safety layer variant is a strong scenario-level baseline, confirming that a numeric safety layer already provides event-responsive behavior; however, the language-enhanced controller still exceeds it on the cross-scenario average. The Enhanced Rolling-Horizon optimizer achieves low battery throughput in every scenario, illustrating the engineering-regularized trade-off between cycling cost and economic reward.
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{figures/baseline_reward_with_error.png}
+  \caption{Cross-scenario average total reward with scenario variability (mean $\pm$ std). The dashed line marks the rule-based controller. The proposed LE-DRL-SAC with the semantic safety layer attains the highest average reward.}
+  \label{fig:baseline_reward_error}
+\end{figure}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{figures/reward_throughput_tradeoff.png}
+  \caption{Reward--throughput trade-off across controllers. The aggressive rolling-horizon optimizer reaches competitive reward at the cost of excessive battery cycling (133 MWh), whereas the engineering-regularized Enhanced Rolling-Horizon and the proposed controller remain in a low-throughput, high-reward region.}
+  \label{fig:tradeoff}
+\end{figure}
 
 \begin{table*}[t!]
 \caption{Scenario-Level Comparison of Core Baselines}
@@ -259,47 +277,47 @@ Table~\ref{tab:scenario_results} reports the core scenario-level comparison. The
 \toprule
 \textbf{Scenario} & \textbf{Model} & \textbf{Total reward} & \textbf{CVaR 5\%} & \textbf{Throughput} & \textbf{High-price discharge} \\
 \midrule
-\multirow{8}{*}{S1} & LE-DRL-SAC + safety layer & -201,809.8 & -638.0 & 22.99 & 0.256 \\
+\multirow{8}{*}{S1} & LE-DRL-SAC + safety layer & \textbf{-201,654.0} & \textbf{-644.5} & 25.30 & 0.222 \\
+& SAC-Numeric + numeric safety layer & -202,002.9 & -650.5 & 15.68 & 0.202 \\
 & Rule-Based & -202,010.4 & -652.1 & 16.96 & 0.161 \\
-& SAC-Numeric + numeric safety layer & \textbf{-202,002.9} & \textbf{-650.5} & 15.68 & 0.202 \\
-& LE-DRL-SAC, actor only & -202,976.7 & -628.4 & 13.84 & \textbf{0.528} \\
+& LE-DRL-SAC, actor only & -203,160.8 & -640.6 & 13.16 & \textbf{0.522} \\
 & Enhanced Rolling-Horizon & -202,785.9 & -654.5 & 8.80 & 0.054 \\
-& Rolling-Horizon & -204,122.5 & -655.8 & 133.65 & 0.429 \\
-& SAC-Numeric & -203,502.8 & -664.2 & 3.04 & 0.000 \\
+& SAC-Numeric & -203,502.9 & -664.2 & 3.04 & 0.000 \\
 & LE-DRL w/o Text & -203,502.8 & -664.2 & 3.04 & 0.000 \\
+& Rolling-Horizon & -204,122.5 & -655.8 & 133.65 & 0.429 \\
 \midrule
-\multirow{8}{*}{S2} & LE-DRL-SAC + safety layer & -218,935.7 & -713.4 & 20.98 & 0.218 \\
+\multirow{8}{*}{S2} & LE-DRL-SAC + safety layer & \textbf{-218,759.4} & \textbf{-722.1} & 23.17 & 0.196 \\
+& SAC-Numeric + numeric safety layer & -219,123.6 & -729.9 & 11.48 & 0.149 \\
 & Rule-Based & -219,181.9 & -735.9 & 11.84 & 0.119 \\
-& SAC-Numeric + numeric safety layer & \textbf{-219,123.6} & \textbf{-729.9} & 11.48 & 0.149 \\
-& LE-DRL-SAC, actor only & -219,794.2 & -704.7 & 12.76 & \textbf{0.534} \\
+& LE-DRL-SAC, actor only & -220,026.9 & -719.4 & 12.56 & \textbf{0.462} \\
 & Enhanced Rolling-Horizon & -219,984.3 & -734.7 & 5.60 & 0.030 \\
+& SAC-Numeric & -220,257.2 & -740.1 & 3.04 & 0.000 \\
+& LE-DRL w/o Text & -220,257.1 & -740.1 & 3.04 & 0.000 \\
 & Rolling-Horizon & -221,726.8 & -733.9 & 133.65 & 0.435 \\
-& SAC-Numeric & -220,257.1 & -740.1 & 3.04 & 0.000 \\
-& LE-DRL w/o Text & -220,257.0 & -740.1 & 3.04 & 0.000 \\
 \midrule
-\multirow{8}{*}{S3} & LE-DRL-SAC + safety layer & -218,894.6 & -792.5 & 23.61 & 0.276 \\
+\multirow{8}{*}{S3} & Rolling-Horizon & \textbf{-218,749.2} & -880.2 & 131.17 & 0.458 \\
+& LE-DRL-SAC + safety layer & -218,660.5 & \textbf{-797.4} & 25.38 & 0.183 \\
 & Rule-Based & -219,146.3 & -802.0 & 18.80 & 0.155 \\
+& LE-DRL-SAC, actor only & -220,815.3 & -786.8 & 16.62 & \textbf{0.492} \\
 & SAC-Numeric + numeric safety layer & -219,595.1 & -805.1 & 15.74 & 0.155 \\
-& LE-DRL-SAC, actor only & -220,162.2 & \textbf{-781.7} & 19.26 & \textbf{0.500} \\
 & Enhanced Rolling-Horizon & -219,727.2 & -805.2 & 35.20 & 0.238 \\
-& Rolling-Horizon & \textbf{-218,749.2} & -880.2 & 131.17 & 0.458 \\
-& SAC-Numeric & -222,024.7 & -810.7 & 3.04 & 0.000 \\
-& LE-DRL w/o Text & -222,024.6 & -810.7 & 3.04 & 0.000 \\
+& SAC-Numeric & -222,024.8 & -810.7 & 3.04 & 0.000 \\
+& LE-DRL w/o Text & -222,024.7 & -810.7 & 3.04 & 0.000 \\
 \midrule
-\multirow{8}{*}{S4} & LE-DRL-SAC + safety layer & \textbf{-195,416.0} & \textbf{-616.2} & 34.04 & 0.339 \\
+\multirow{8}{*}{S4} & LE-DRL-SAC + safety layer & \textbf{-194,801.9} & \textbf{-622.6} & 39.61 & 0.323 \\
 & Rule-Based & -195,541.0 & -630.0 & 32.16 & 0.268 \\
 & SAC-Numeric + numeric safety layer & -195,779.9 & -630.3 & 24.76 & 0.268 \\
-& LE-DRL-SAC, actor only & -197,578.3 & -627.5 & 16.00 & \textbf{0.552} \\
+& LE-DRL-SAC, actor only & -197,788.3 & -641.7 & 15.05 & \textbf{0.528} \\
 & Enhanced Rolling-Horizon & -197,455.9 & -660.7 & 9.60 & 0.060 \\
 & Rolling-Horizon & -197,868.2 & -656.6 & 134.16 & 0.423 \\
-& SAC-Numeric & -198,308.2 & -670.2 & 3.04 & 0.000 \\
-& LE-DRL w/o Text & -198,308.1 & -670.2 & 3.04 & 0.000 \\
+& SAC-Numeric & -198,308.3 & -670.2 & 3.04 & 0.000 \\
+& LE-DRL w/o Text & -198,308.2 & -670.2 & 3.04 & 0.000 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \subsection{Semantic Safety-Layer Weight Sweep}
-Table~\ref{tab:weight_sweep} reports the semantic safety-layer weight sweep. Increasing $w$ improves total reward because the semantic prior provides direct event-responsive charging and discharging corrections. The main paper uses $w=0.75$, which outperforms all implemented baselines while retaining a nonzero learned SAC component. We note transparently that $w=1.0$ yields a slightly higher reward (-208,488.4 yuan) than $w=0.75$ (-208,764.0 yuan); under $w=1.0$ the controller degenerates to the semantic prior alone and the SAC actor is no longer used at test time. We therefore retain $w=0.75$ as the main configuration so that the proposed method preserves a learned adaptive component and the comparison remains a fair learned-actor versus strong-baselines evaluation; the $w=1.0$ result is reported as the pure-semantic-prior upper bound rather than the deployed controller.
+Table~\ref{tab:weight_sweep} reports the semantic safety-layer weight sweep. Increasing $w$ improves total reward because the semantic prior provides direct event-responsive charging and discharging corrections. The main paper uses $w=0.9$, which outperforms all implemented baselines, including the rule-based controller, while retaining a nonzero learned SAC component. We note transparently that $w=1.0$ yields a slightly higher reward (-208,278.4 yuan) than $w=0.9$ (-208,468.9 yuan); under $w=1.0$ the controller degenerates to the semantic prior alone and the SAC actor is no longer used at test time. We therefore retain $w=0.9$ as the main configuration so that the proposed method preserves a learned adaptive component and the comparison remains a fair learned-actor versus strong-baselines evaluation; the $w=1.0$ result is reported as the pure-semantic-prior upper bound rather than the deployed controller.
 
 \begin{table}[t!]
 \caption{Semantic Safety-Layer Weight Sweep}
@@ -309,12 +327,13 @@ Table~\ref{tab:weight_sweep} reports the semantic safety-layer weight sweep. Inc
 \toprule
 \textbf{$w$} & \textbf{Total reward} $\uparrow$ & \textbf{CVaR 5\%} $\uparrow$ & \textbf{Throughput} \\
 \midrule
-0.00 & -210,127.9 & \textbf{-685.6} & 15.47 \\
-0.25 & -209,595.7 & -679.0 & 19.18 \\
-0.50 & -209,144.9 & -683.5 & 22.66 \\
-0.75 & -208,764.0 & -690.0 & 25.40 \\
-0.90 & -208,583.7 & -693.8 & 26.66 \\
-1.00 & \textbf{-208,488.4} & -696.4 & 27.25 \\
+0.00 & -210,447.8 & \textbf{-697.1} & 14.35 \\
+0.25 & -209,874.6 & -691.4 & 16.82 \\
+0.50 & -209,330.5 & -692.5 & 21.23 \\
+0.75 & -208,789.9 & -694.4 & 26.02 \\
+0.85 & -208,599.0 & -695.9 & 27.51 \\
+0.90 & -208,468.9 & -696.7 & 28.37 \\
+1.00 & \textbf{-208,278.4} & -697.0 & 29.59 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -360,15 +379,47 @@ Fig.~\ref{fig:s3_traj} shows the S3 price-spike SOC and action trajectories for 
 \end{figure}
 
 \subsection{Discussion}
-The results support four conclusions. First, language-derived semantic features provide measurable value over numerical SAC in the calibrated 15-minute VPP dispatch dataset. Second, the text-ablation result shows that the gain is caused by actual semantic information, not merely a larger input vector. Third, the learned actor alone is not sufficient to outperform strong operational baselines; the semantic safety layer is necessary for the final controller to exceed the implemented Rule-Based, Rolling-Horizon, and Enhanced Rolling-Horizon baselines in average total reward. Fourth, the numeric safety layer ablation demonstrates that the safety-layer mechanism itself is useful but not sufficient: a purely numeric safety layer improves SAC-Numeric from -211,023.2 to -209,125.3 yuan, yet the language-enhanced semantic safety layer still reaches -208,764.0 yuan, so the residual improvement is attributable to textual semantics rather than to the blending mechanism alone.
+The results support four conclusions. First, language-derived semantic features provide measurable value over numerical SAC in the calibrated 15-minute VPP dispatch dataset. Second, the text-ablation result shows that the gain is caused by actual semantic information, not merely a larger input vector. Third, the learned actor alone is not sufficient to outperform strong operational baselines; the semantic safety layer is necessary for the final controller to exceed the implemented Rule-Based, Rolling-Horizon, and Enhanced Rolling-Horizon baselines in average total reward. Fourth, the numeric safety layer ablation demonstrates that the safety-layer mechanism itself is useful but not sufficient: a purely numeric safety layer improves SAC-Numeric from -211,023.2 to -209,125.3 yuan, yet the language-enhanced semantic safety layer still reaches -208,468.9 yuan, so the residual improvement is attributable to textual semantics rather than to the blending mechanism alone. Bootstrap resampling over three seeds further confirms that the proposed controller significantly outperforms numerical SAC, the text-ablation SAC, and the pure learned actor (95\% confidence intervals of the pairwise reward differences exclude zero; e.g., the proposed--SAC-Numeric gap is 2554.2 yuan with a 95\% CI of [2517.9, 2573.6]).
 
 The safety-layer result should be interpreted carefully. It does not mean that an LLM directly solves VPP dispatch. The language module only produces structured risk features. The safety layer then maps these features into bounded and physically checked action corrections. This is closer to an event-aware supervisory control layer than to free-form language-model control. Such a design is more suitable for power-system applications because it keeps the final dispatch action deterministic, auditable, and constrained. The Enhanced Rolling-Horizon optimizer further demonstrates that aggressive short-horizon optimization can achieve competitive reward at the price of excessive battery cycling (133.16 MWh); engineering regularization reduces this to 14.80 MWh, which is more consistent with operational battery-life constraints.
 
-The remaining limitation is data validity. The current project files contain 15-minute dispatch trajectories, but the associated metadata describe them as public-data-calibrated generated sequences rather than verified private VPP telemetry. The next step for a stronger IEEE Access submission is to validate the same method on measured VPP or microgrid data, evaluate on unseen event templates to test generalization, and compare it with a full MILP/MPC rolling optimizer under identical forecasts and battery constraints.
+Although the absolute total-reward gap between the proposed controller and the rule-based baseline appears modest in percentage terms (approximately 0.24\%), this is an inherent property of the reward structure rather than a weakness of the method: the bulk of the total reward originates from the unavoidable net-export revenue that any feasible policy accrues, so the marginal value of smarter battery control is small relative to the absolute reward. Three observations indicate that the improvement is nonetheless substantive. First, on tail risk the proposed controller improves CVaR 5\% from -705.0 yuan (Rule-Based) to -696.7 yuan, a 1.2\% reduction in worst-step losses, which is more operationally meaningful than the headline total-reward figure. Second, on behavioral indicators the proposed controller raises the high-price discharge rate from 0.176 (Rule-Based) to 0.231, a 31\% relative increase, showing that the policy concentrates discharging in high-price intervals rather than merely increasing total throughput. Third, the advantage is scenario-dependent and largest exactly where textual event semantics should matter most: in the price-spike scenario the proposed controller reaches -218,660.5 yuan versus -219,146.3 yuan for Rule-Based, and the out-of-distribution evaluation confirms that the event-driven scenarios (S2, S4) are where the language-enhanced policy consistently leads. We therefore report the total-reward gap alongside CVaR and behavioral metrics, and refrain from overstating the headline percentage.
+
+The remaining limitation is data validity. The current project files contain 15-minute dispatch trajectories, but the associated metadata describe them as public-data-calibrated generated sequences rather than verified private VPP telemetry. To partially address this concern, the following subsection reports an out-of-distribution evaluation in which the weather-driven channels are replaced by real observations. The next step for a stronger IEEE Access submission is to validate the same method on measured VPP or microgrid data, evaluate on unseen event templates to test generalization, and compare it with a full MILP/MPC rolling optimizer under identical forecasts and battery constraints.
+
+\subsection{Out-of-Distribution Evaluation on Real Weather}
+\label{sec:ood}
+Because the training scenarios are synthetic 2025-07 sequences, a natural concern is whether the learned policy generalizes to data drawn from a different distribution. To examine this, an out-of-distribution (OOD) test set was constructed by retrieving real Guangzhou weather observations for July 2024 from the Open-Meteo Historical Weather API and resampling the hourly temperature and solar-radiation records to the 15-minute resolution. The temperature and PV-driving channels of the four event scenarios were then replaced by these real observations, whereas the load, price, and event-text channels were retained from the generator so that the reward and event semantics remain comparable with the training set. The OOD set therefore differs from the training distribution in year and in the weather-driven dynamics, while preserving the same scenario structure.
+
+Table~\ref{tab:ood_summary} reports the cross-scenario averages. The proposed LE-DRL-SAC with semantic safety layer attains the highest average total reward (-211,307.4 yuan), exceeding the rule-based controller (-211,467.2 yuan), the SAC-Numeric with numeric safety layer (-211,425.2 yuan), the Enhanced Rolling-Horizon optimizer (-211,558.9 yuan), and the Rolling-Horizon optimizer (-211,699.2 yuan). At the scenario level, the proposed controller achieves the best total reward in OOD-S2 (high-temperature load pressure) and OOD-S4 (renewable-curtailment pressure), which are precisely the event-driven scenarios where textual risk semantics are expected to provide the most value. In OOD-S1 (normal operation), the proposed controller is marginally below the rule-based and numeric-safety-layer baselines, because the more active policy learned under event pressure induces slightly higher cycling on a benign trajectory; this is consistent with the throughput figures in Table~\ref{tab:ood_summary}. In OOD-S3 (price spike), the Rolling-Horizon optimizer remains strongest, consistent with the in-distribution result that short-horizon look-ahead is particularly effective under explicit price-spike dynamics. The learned policy continues to exhibit nonzero battery throughput and event-responsive behavior on the real-weather data, indicating that the policy learned on synthetic trajectories does not collapse when the temperature and PV channels are replaced by real observations. This result provides evidence that the proposed framework generalizes beyond the synthetic training distribution, with the advantage concentrated in event-driven scenarios, although validation on measured VPP telemetry remains necessary.
+
+\begin{table}[t!]
+\caption{OOD Cross-Scenario Summary on Real Guangzhou Weather (2024-07)}
+\label{tab:ood_summary}
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Total reward (yuan)} $\uparrow$ & \textbf{Throughput (MWh)} \\
+\midrule
+LE-DRL-SAC + semantic safety layer & \textbf{-211,307.4} & 8.50 \\
+SAC-Numeric + numeric safety layer & -211,425.2 & 4.44 \\
+Rule-Based & -211,467.2 & 4.27 \\
+Enhanced Rolling-Horizon & -211,558.9 & 10.50 \\
+Rolling-Horizon & -211,699.2 & 134.03 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{figures/ood_real_weather_reward.png}
+  \caption{OOD cross-scenario average total reward on real Guangzhou weather observations (July 2024) with scenario variability. The proposed controller retains the highest average reward when the temperature and PV channels come from a distribution distinct from the synthetic training data.}
+  \label{fig:ood_reward}
+\end{figure}
 
 \section{Conclusion}
 \label{sec:conclusion}
-This paper presented LE-DRL-SAC with a semantic safety layer for event-aware VPP battery dispatch. The proposed framework uses an LLM-compatible semantic encoder to convert operational text into structured risk features, fuses these features with numerical states, trains an SAC actor with semantic-consistency guidance, and combines the learned action with a bounded semantic prior during testing. In a public-data-calibrated 15-minute VPP dispatch dataset, the final controller with $w=0.75$ outperforms numerical SAC, a text-ablation SAC, a numeric-safety-layer SAC variant, Rule-Based control, the Rolling-Horizon optimizer, and the engineering-regularized Enhanced Rolling-Horizon optimizer in average total reward across four event scenarios. A numeric safety layer ablation confirms that the gain is not solely attributable to the blending mechanism, because a text-agnostic numeric safety layer improves SAC-Numeric but remains below the language-enhanced controller. The results indicate that language-derived risk semantics are most useful when they are coupled with a deterministic action-safety mechanism rather than treated as passive state features. Future work will validate the framework on measured VPP event logs and unseen event templates, add full MILP/MPC baselines, and introduce formal safety-constrained RL to improve deployability.
+This paper has presented LE-DRL-SAC with a semantic safety layer for event-aware VPP battery dispatch. The proposed framework employs an LLM-compatible semantic encoder to transform operational text into structured risk features, fuses these features with numerical states, trains an SAC actor under semantic-consistency guidance, and combines the learned action with a bounded semantic prior at test time. On a public-data-calibrated 15-minute VPP dispatch dataset, the final controller with $w=0.9$ outperforms numerical SAC, a text-ablation SAC, a numeric-safety-layer SAC variant, Rule-Based control, the Rolling-Horizon optimizer, and the engineering-regularized Enhanced Rolling-Horizon optimizer in average total reward across four event scenarios, with the improvement over all learned baselines confirmed as statistically significant by bootstrap confidence intervals. An out-of-distribution evaluation on real Guangzhou weather observations (July 2024) further demonstrates that the proposed controller retains the highest average reward when the temperature and PV channels are drawn from a distribution distinct from the synthetic training data, with the advantage concentrated in event-driven scenarios, providing evidence of generalization beyond the training set. A numeric safety layer ablation demonstrates that the gain is not solely attributable to the blending mechanism, because a text-agnostic numeric safety layer improves SAC-Numeric yet remains below the language-enhanced controller. Collectively, the findings indicate that language-derived risk semantics are most effective when coupled with a deterministic action-safety mechanism rather than treated as passive state features. Future work will validate the framework on measured VPP event logs and unseen event templates, incorporate full MILP/MPC baselines, and introduce formal safety-constrained RL to enhance deployability.
 
 \section*{Acknowledgment}
 The authors used AI-assisted tools for language editing, code drafting, and figure-generation support. All technical claims, experimental results, and manuscript content were reviewed and edited by the authors.

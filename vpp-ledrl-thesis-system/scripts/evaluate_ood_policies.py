@@ -26,7 +26,7 @@ from app.core.rolling_optimizer import EnhancedRollingHorizonPolicy, RollingHori
 from app.core.rl.ledrl_agent import LEDRLAgent, LEDRLConfig
 from app.core.simulation import calculate_metrics
 
-OOD_PATH = ROOT / "data" / "processed" / "ood_vpp_scenarios.csv"
+OOD_PATH = ROOT / "data" / "processed" / "ood_vpp_scenarios_ai_semantic.csv"
 CKPT_DIR = ROOT / "outputs" / "chapter6_long" / "checkpoints"
 OUT_PATH = ROOT / "outputs" / "chapter6_long" / "ood_evaluation.csv"
 
@@ -114,13 +114,13 @@ def main() -> None:
     scenarios = load_ood_scenarios()
     rows: list[dict] = []
 
-    # Trained checkpoint (numeric safety layer).
-    ckpt = CKPT_DIR / "SAC-Numeric_numeric_safety_layer_seed2026.pt"
+    from app.core.rl.sac import SACAgent
+
+    # Trained checkpoint: SAC-Numeric + numeric safety layer.
     trained = None
+    ckpt = CKPT_DIR / "SAC-Numeric_numeric_safety_layer_seed2026.pt"
     if ckpt.exists():
         try:
-            from app.core.rl.sac import SACAgent
-
             sac = SACAgent.load(ckpt)
             agent = LEDRLAgent(
                 LEDRLConfig(
@@ -138,12 +138,38 @@ def main() -> None:
     else:
         print(f"WARN: checkpoint not found: {ckpt}")
 
+    # Trained checkpoint: proposed LE-DRL-SAC + semantic safety layer (w=0.9).
+    proposed = None
+    proposed_ckpt = CKPT_DIR / "LE-DRL-SAC_seed2026.pt"
+    if proposed_ckpt.exists():
+        try:
+            sac = SACAgent.load(proposed_ckpt)
+            agent = LEDRLAgent(
+                LEDRLConfig(
+                    include_semantic=True,
+                    semantic_mode="native",
+                    name="LE-DRL-SAC + semantic safety layer",
+                    semantic_guidance_weight=0.9,
+                    semantic_guidance_power=2.0,
+                )
+            )
+            agent.sac = sac
+            proposed = agent
+            print(f"Loaded checkpoint: {proposed_ckpt}")
+        except Exception as exc:  # pragma: no cover
+            print(f"WARN: could not load checkpoint {proposed_ckpt}: {exc}")
+    else:
+        print(f"WARN: checkpoint not found: {proposed_ckpt}")
+
     # Build the full evaluation task list so the progress bar covers everything.
+    extra = []
+    if trained is not None:
+        extra.append("SAC-Numeric + numeric safety layer")
+    if proposed is not None:
+        extra.append("LE-DRL-SAC + semantic safety layer")
     tasks: list[tuple] = []
     for scenario_id, name, stress, data in scenarios:
-        for policy_name in ["Rule-Based", "Rolling-Horizon", "Enhanced Rolling-Horizon"] + (
-            ["SAC-Numeric + numeric safety layer"] if trained is not None else []
-        ):
+        for policy_name in ["Rule-Based", "Rolling-Horizon", "Enhanced Rolling-Horizon"] + extra:
             tasks.append((scenario_id, name, stress, data, policy_name))
 
     bar = ProgressBar(len(tasks), label="OOD eval")
@@ -154,6 +180,8 @@ def main() -> None:
             policy = RollingHorizonOptimizerPolicy(data=data)
         elif policy_name == "Enhanced Rolling-Horizon":
             policy = EnhancedRollingHorizonPolicy(data=data)
+        elif policy_name == "LE-DRL-SAC + semantic safety layer":
+            policy = proposed
         else:
             policy = trained
         row = evaluate_policy(policy, data, scenario_id, name, stress, policy_name)

@@ -33,10 +33,11 @@ METRICS = [
 ]
 
 CORE_ORDER = [
-    "LE-DRL-SAC + semantic safety layer (w=0.75)",
+    "LE-DRL-SAC + semantic safety layer (w=0.9)",
     "Rule-Based",
     "Rolling-Horizon",
     "Enhanced Rolling-Horizon",
+    "Linear-MPC",
     "SAC-Numeric",
     "SAC-Numeric + numeric safety layer",
     "LE-DRL w/o Text",
@@ -88,7 +89,9 @@ def load_classical() -> pd.DataFrame:
 
 
 def load_long_rl() -> pd.DataFrame:
-    path = LONG_FALLBACK_PATH if LONG_FALLBACK_PATH.exists() else LONG_PATH
+    # Prefer the freshly regenerated long-run aggregate (AI-semantic training)
+    # over the stale fallback committed under ieee_pkg/figures.
+    path = LONG_PATH if LONG_PATH.exists() else LONG_FALLBACK_PATH
     if not path.exists():
         raise FileNotFoundError(f"Missing long RL results: {LONG_PATH} or {LONG_FALLBACK_PATH}")
     long_df = pd.read_csv(path)
@@ -122,7 +125,7 @@ def load_safety_layer() -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
     sweep = pd.read_csv(path)
-    row = sweep[sweep["weight"].round(2) == 0.75]
+    row = sweep[sweep["weight"].round(2) == 0.9]
     if row.empty:
         return pd.DataFrame()
     r = row.iloc[0]
@@ -130,7 +133,7 @@ def load_safety_layer() -> pd.DataFrame:
     # Only cross-scenario summary is available for the safety-layer sweep here.
     rows.append(
         {
-            "model": "LE-DRL-SAC + semantic safety layer (w=0.75)",
+            "model": "LE-DRL-SAC + semantic safety layer (w=0.9)",
             "total_reward_yuan_mean": float(r["total_reward_yuan_mean"]),
             "cvar_5_yuan_mean": float(r["cvar_5_yuan_mean"]),
             "battery_throughput_mwh_mean": float(r["battery_throughput_mwh_mean"]),

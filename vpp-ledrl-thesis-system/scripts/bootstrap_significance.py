@@ -29,11 +29,13 @@ ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = ROOT.parent
 EVAL_PATH = REPO_ROOT / "ieee_pkg" / "ieee_access_vpp_ledrl_20260630" / "figures" / "evaluation_by_seed.csv"
 FALLBACK_EVAL_PATH = ROOT / "outputs" / "chapter6_long" / "evaluation_by_seed.csv"
+SWEEP_BY_SEED_PATH = ROOT / "outputs" / "chapter6_long" / "prior_weight_sweep_by_seed.csv"
 OUT_DIR = ROOT / "outputs" / "chapter6_long"
 
 N_BOOT = 10000
 SEED = 2026
 ALPHA = 0.05
+PROPOSED_WEIGHT = 0.9
 
 
 class ProgressBar:
@@ -69,6 +71,22 @@ def load_eval() -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"Missing evaluation_by_seed.csv: {EVAL_PATH} or {FALLBACK_EVAL_PATH}")
     df = pd.read_csv(path)
+    # Add proposed-controller per-seed rows from the safety-layer sweep (w=0.9).
+    if SWEEP_BY_SEED_PATH.exists():
+        sweep = pd.read_csv(SWEEP_BY_SEED_PATH)
+        proposed = sweep[sweep["weight"].round(2) == PROPOSED_WEIGHT].copy()
+        if not proposed.empty:
+            proposed_avg = (
+                proposed.groupby("seed", as_index=False)["total_reward_yuan"].mean()
+            )
+            proposed_rows = pd.DataFrame(
+                {
+                    "seed": proposed_avg["seed"].astype(int),
+                    "model": "LE-DRL-SAC + semantic safety layer (w=0.9)",
+                    "total_reward_yuan": proposed_avg["total_reward_yuan"],
+                }
+            )
+            df = pd.concat([df, proposed_rows], ignore_index=True)
     return df
 
 
@@ -147,7 +165,7 @@ def main() -> None:
     # Pairwise difference vs baselines, using the proposed controller as anchor.
     proposed_name = None
     for cand in [
-        "LE-DRL-SAC + semantic safety layer (w=0.75)",
+        "LE-DRL-SAC + semantic safety layer (w=0.9)",
         "LE-DRL-SAC",
         "SAC-Numeric + numeric safety layer",
     ]:

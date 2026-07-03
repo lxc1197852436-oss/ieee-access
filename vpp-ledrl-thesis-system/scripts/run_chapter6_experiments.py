@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from app.core.config import ScenarioConfig
 from app.core.data import generate_china_vpp_scenario
 from app.core.experiment_design import SCENARIOS
+from app.core.mpc_optimizer import LinearMPCOptimizerPolicy
 from app.core.policies import RuleBasedPolicy, SemanticEnhancedPolicy, RandomPolicy
 from app.core.rl_agents import DiscreteSoftQAgent, SoftQPolicy
 from app.core.rolling_optimizer import EnhancedRollingHorizonPolicy, RollingHorizonOptimizerPolicy
@@ -79,6 +80,7 @@ def evaluate_scenario(scenario) -> list[dict]:
         SemanticEnhancedPolicy(),
         RollingHorizonOptimizerPolicy(data=data),
         EnhancedRollingHorizonPolicy(data=data),
+        LinearMPCOptimizerPolicy(data=data),
         RandomPolicy(seed=scenario.seed),
     ] + load_softq_policies()
     rows = []

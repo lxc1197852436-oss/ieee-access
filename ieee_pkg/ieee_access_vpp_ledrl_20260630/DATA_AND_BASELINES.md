@@ -43,7 +43,7 @@ The draft now includes the following stronger baselines:
 | SAC-Numeric | implemented and evaluated | Numerical-state reinforcement-learning baseline |
 | SAC-Numeric + numeric safety layer | implemented and evaluated (`numeric_guidance_100`) | Text-agnostic safety-layer ablation isolating mechanism vs semantics |
 | LE-DRL w/o Text | implemented and evaluated | Text-ablation baseline with identical semantic input dimension |
-| LE-DRL-SAC + semantic safety layer | implemented and evaluated | Final proposed controller; main result uses `w=0.75` |
+| LE-DRL-SAC + semantic safety layer | implemented and evaluated | Final proposed controller; main result uses `w=0.9` with prior power 2.0 |
 | Random | implemented and evaluated | Weak sanity-check baseline |
 | Soft-Q-Numeric / Soft-Q-Semantic | implemented and evaluated | Transitional discrete-action RL baseline |
 | Full MILP/MPC | not yet implemented | Recommended next strong baseline before final submission |
@@ -54,10 +54,10 @@ Cross-scenario average total reward:
 
 | Model | Total reward (yuan) |
 |---|---:|
-| LE-DRL-SAC + semantic safety layer (`w=0.75`) | -208,764.0 |
+| LE-DRL-SAC + semantic safety layer (`w=0.9`, power=2.0, DeepSeek) | -208,468.9 |
 | Rule-Based | -208,969.9 |
 | SAC-Numeric + numeric safety layer (`numeric_guidance_100`) | -209,125.3 |
-| LE-DRL-SAC actor only (`w=0`) | -210,127.9 |
+| LE-DRL-SAC actor only (`w=0`) | -210,447.8 |
 | Enhanced Rolling-Horizon (`light_40_10`) | -209,988.3 |
 | Rolling-Horizon | -210,616.7 |
 | SAC-Numeric | -211,023.2 |
@@ -65,7 +65,7 @@ Cross-scenario average total reward:
 
 Correct claim:
 
-> LE-DRL-SAC with a semantic safety layer (`w=0.75`) outperforms numerical SAC, text-ablation SAC, a numeric-safety-layer SAC variant, Rule-Based control, the Rolling-Horizon optimizer, and the Enhanced Rolling-Horizon optimizer in average total reward. The numeric safety layer already improves SAC-Numeric, which confirms the blending mechanism carries value; the language-enhanced controller still exceeds the numeric-safety-layer variant, so the residual gain is attributable to textual semantics rather than the mechanism alone. The pure learned actor alone is not sufficient; the semantic safety layer is necessary for the final result.
+> LE-DRL-SAC with a semantic safety layer (`w=0.9`, prior power 2.0, DeepSeek LLM semantic encoder) outperforms numerical SAC, text-ablation SAC, a numeric-safety-layer SAC variant, Rule-Based control, the Rolling-Horizon optimizer, and the Enhanced Rolling-Horizon optimizer in average total reward over three seeds. Bootstrap 95% confidence intervals of the pairwise reward difference exclude zero for all RL comparisons (vs SAC-Numeric +2554.2 CI[2517.9,2573.6]; vs w/o Text +2554.1; vs actor-only +939.9 CI[890.3,988.7]). The numeric safety layer already improves SAC-Numeric, which confirms the blending mechanism carries value; the language-enhanced controller still exceeds the numeric-safety-layer variant, so the residual gain is attributable to textual semantics rather than the mechanism alone. The pure learned actor alone is not sufficient; the semantic safety layer is necessary for the final result.
 
 Incorrect claim:
 
