@@ -44,7 +44,7 @@ Virtual power plant, deep reinforcement learning, Soft Actor-Critic, large langu
 
 Deep reinforcement learning (DRL) has been extensively investigated for energy management and power-system control owing to its capacity to learn sequential policies from interaction data \cite{b1,b2,b9}. For battery dispatch, continuous-action algorithms such as Soft Actor-Critic (SAC) are particularly appealing because they can directly emit charging and discharging power commands \cite{b3,b11,b12}. Nevertheless, the majority of DRL dispatch controllers consume only numerical states, and the neglect of operational text constrains event awareness—most notably during high-temperature load-pressure, price-spike, and renewable-curtailment intervals.
 
-Large language models (LLMs) offer a promising interface between unstructured operational text and numerical decision models. Recent studies have examined LLMs for power-system reasoning, dispatch assistance, and broader energy-sector applications \cite{b4,b5,b6,b13,b14}. However, directly commissioning an LLM to emit final dispatch actions is hazardous, because VPP operation must satisfy battery limits, SOC dynamics, market settlement logic, and reproducibility requirements. A more tractable design employs the LLM as a semantic front end: it transforms event text into structured risk features, whereas a conventional controller or reinforcement-learning policy generates the final action.
+Large language models (LLMs) offer a promising interface between unstructured operational text and numerical decision models. Recent studies have examined LLMs for power-system reasoning, dispatch assistance, and broader energy-sector applications \cite{b4,b5,b6}. However, directly commissioning an LLM to emit final dispatch actions is hazardous, because VPP operation must satisfy battery limits, SOC dynamics, market settlement logic, and reproducibility requirements. A more tractable design employs the LLM as a semantic front end: it transforms event text into structured risk features, whereas a conventional controller or reinforcement-learning policy generates the final action.
 
 This study investigates the aforementioned decoupled design for VPP battery dispatch. The language module emits risk scores rather than free-form dispatch commands. The SAC actor furnishes the learned control component, while a deterministic semantic safety layer maps high-confidence textual risk cues into bounded action corrections. This hybrid design is motivated by a practical observation: a purely learned actor tends to underutilize rare event signals, whereas a purely rule-based controller lacks adaptive learning capability. Their combination enhances event responsiveness without permitting the language model to bypass physical feasibility checks. Related work is reviewed in detail in Section~\ref{sec:related}.
 
@@ -60,19 +60,19 @@ The main contributions are as follows:
 \label{sec:related}
 
 \subsection{Optimization-Based VPP and Storage Dispatch}
-Virtual power plants and battery storage dispatch have traditionally been formulated as mixed-integer linear programming (MILP), stochastic programming, or robust optimization problems that explicitly model forecast uncertainty, battery dynamics, and market settlement \cite{b10,b15,b16,b17}. Stochastic-programming offering models for VPP participation in electricity markets are reviewed in \cite{b10}, while model predictive control (MPC) has become a standard operational baseline for building and microgrid energy management \cite{b7,b18}. Although these optimization methods are interpretable and constraint-aware, they rely heavily on accurate forecasts and parameter tuning, and their online solving cost grows with horizon and state dimension. This paper keeps a rolling-horizon optimizer family as the optimization baseline, including an engineering-regularized enhanced variant, but does not claim to replace full MILP/MPC.
+Virtual power plants and battery storage dispatch have traditionally been formulated as mixed-integer linear programming (MILP), stochastic programming, or robust optimization problems that explicitly model forecast uncertainty, battery dynamics, and market settlement \cite{b10,b13,b14,b15}. Stochastic-programming offering models for VPP participation in electricity markets are reviewed in \cite{b10}, while model predictive control (MPC) has become a standard operational baseline for building and microgrid energy management \cite{b7,b16}. Although these optimization methods are interpretable and constraint-aware, they rely heavily on accurate forecasts and parameter tuning, and their online solving cost grows with horizon and state dimension. This paper keeps a rolling-horizon optimizer family as the optimization baseline, including an engineering-regularized enhanced variant, but does not claim to replace full MILP/MPC.
 
 \subsection{Deep Reinforcement Learning for Energy Management}
-DRL has been increasingly applied to energy storage arbitrage, microgrid management, and VPP dispatch. Actor-critic methods such as DDPG, TD3, and SAC are well suited to continuous charging/discharging control \cite{b3,b11,b12,b19,b20}, and comprehensive reviews summarize DRL applications across modern power and energy systems \cite{b9,b21,b22}. Relative to value-based discrete-action methods, maximum-entropy SAC offers a principled exploration--exploitation trade-off, which is particularly advantageous under price volatility and renewable uncertainty \cite{b3,b11}. A recurring limitation, however, is that most DRL dispatch controllers consume only numerical states and do not ingest textual operational signals. The present work targets this gap by augmenting the SAC state with language-derived risk features.
+DRL has been increasingly applied to energy storage arbitrage, microgrid management, and VPP dispatch. Actor-critic methods such as DDPG, TD3, and SAC are well suited to continuous charging/discharging control \cite{b3,b11,b12,b17,b18}, and comprehensive reviews summarize DRL applications across modern power and energy systems \cite{b9,b19,b20}. Relative to value-based discrete-action methods, maximum-entropy SAC offers a principled exploration--exploitation trade-off, which is particularly advantageous under price volatility and renewable uncertainty \cite{b3,b11}. A recurring limitation, however, is that most DRL dispatch controllers consume only numerical states and do not ingest textual operational signals. The present work targets this gap by augmenting the SAC state with language-derived risk features.
 
 \subsection{Language Models and Semantic Information in Power Systems}
-Recent surveys examine LLM capabilities and limitations in the electric energy sector, encompassing knowledge retrieval, dispatch assistance, and text-driven decision support \cite{b4,b6,b13,b14,b23}. LLM-aided and LLM-for-dispatch studies have investigated language models for advanced dispatch reasoning \cite{b5} and for interpreting operational events. Pre-trained encoders such as BERT and domain-adapted language models have likewise been employed to embed Chinese power-system text into downstream prediction and classification tasks \cite{b24,b25,b26}. A common pattern is to deploy the language model as a feature extractor or explainer rather than as the final controller, because directly LLM-generated actions are difficult to audit and constrain. The present work adheres to this pattern: the language module emits structured risk scores only, whereas a reproducible SAC actor and a deterministic safety layer generate the final action.
+Recent surveys examine LLM capabilities and limitations in the electric energy sector, encompassing knowledge retrieval, dispatch assistance, and text-driven decision support \cite{b4,b5,b6}. LLM-aided and LLM-for-dispatch studies have investigated language models for advanced dispatch reasoning \cite{b5} and for interpreting operational events. Pre-trained encoders such as BERT and domain-adapted language models have likewise been employed to embed Chinese power-system text into downstream prediction and classification tasks \cite{b21,b22}. A common pattern is to deploy the language model as a feature extractor or explainer rather than as the final controller, because directly LLM-generated actions are difficult to audit and constrain. The present work adheres to this pattern: the language module emits structured risk scores only, whereas a reproducible SAC actor and a deterministic safety layer generate the final action.
 
 \subsection{Safety Layers and Constrained Learning}
-Deploying learned policies in safety-critical power-system settings necessitates constraint enforcement. Safe RL, constrained policy optimization, and action-shielding methods impose operational limits on top of learned actors \cite{b27,b28,b29,b30}. Action-prior blending and residual policy methods likewise combine a learned policy with a deterministic or rule-based base controller to guarantee feasibility \cite{b31,b32,b33,b34}. Within the energy-management literature, hybrid schemes that couple rule-based or MPC supervisors with learned actors have been reported for microgrids and energy communities \cite{b8,b35,b36,b37}. The present work is closest to the action-prior blending line: the semantic safety layer maps language-derived risk cues into a bounded correction blended with the SAC action, and the same blending formula is reused with a purely numeric prior to construct an ablation that isolates the value of textual semantics from the safety mechanism itself.
+Deploying learned policies in safety-critical power-system settings necessitates constraint enforcement. Safe RL, constrained policy optimization, and action-shielding methods impose operational limits on top of learned actors \cite{b23,b24,b25,b26}. Action-prior blending and residual policy methods likewise combine a learned policy with a deterministic or rule-based base controller to guarantee feasibility \cite{b27,b28,b29}. Within the energy-management literature, hybrid schemes that couple rule-based or MPC supervisors with learned actors have been reported for microgrids and energy communities \cite{b8,b30,b31}. The present work is closest to the action-prior blending line: the semantic safety layer maps language-derived risk cues into a bounded correction blended with the SAC action, and the same blending formula is reused with a purely numeric prior to construct an ablation that isolates the value of textual semantics from the safety mechanism itself.
 
 \subsection{Demand Response and Renewable-Curtailment Events}
-Event-driven dispatch must additionally respond to demand-response invitations, weather warnings, and renewable-curtailment notices. Peer-to-peer energy systems, demand-response programs, and renewable-integration studies furnish the operational context and event categories that motivate the text-event design herein \cite{b8,b38,b39,b40,b41,b42}. Public disclosures from Chinese power-sector authorities and regional markets calibrate the macro background, whereas the 15-minute dispatch trajectories are generated for reproducible evaluation rather than claimed as private telemetry. Table~\ref{tab:related_position} positions this work against representative prior categories.
+Event-driven dispatch must additionally respond to demand-response invitations, weather warnings, and renewable-curtailment notices. Peer-to-peer energy systems, demand-response programs, and renewable-integration studies furnish the operational context and event categories that motivate the text-event design herein \cite{b8,b32,b33,b34,b35}. Public disclosures from Chinese power-sector authorities and regional markets calibrate the macro background, whereas the 15-minute dispatch trajectories are generated for reproducible evaluation rather than claimed as private telemetry. Table~\ref{tab:related_position} positions this work against representative prior categories.
 
 \begin{table*}[t!]
 \caption{Positioning of This Paper Against Prior Categories}
@@ -82,13 +82,13 @@ Event-driven dispatch must additionally respond to demand-response invitations, 
 \toprule
 \textbf{Work category} & \textbf{Text events} & \textbf{Continuous action} & \textbf{Safety layer} & \textbf{Public reproducibility} & \textbf{This paper} \\
 \midrule
-MILP / stochastic / robust VPP dispatch \cite{b10,b15,b16,b17} & No & Yes & Implicit & Varies & -- \\
-MPC for energy management \cite{b7,b18} & No & Yes & Implicit & Varies & -- \\
-DRL for storage / VPP dispatch \cite{b9,b11,b12,b21} & No & Yes & No & Varies & -- \\
-LLM for power-system reasoning \cite{b4,b5,b6,b13} & Yes & No & No & Limited & -- \\
-Pre-trained text encoders in power systems \cite{b24,b25,b26} & Yes & No & No & Limited & -- \\
-Safe RL / action shielding \cite{b27,b28,b29,b30} & No & Yes & Yes & Varies & -- \\
-Hybrid rule/MPC + learned actor \cite{b8,b35,b36,b37} & No & Yes & Yes & Varies & -- \\
+MILP / stochastic / robust VPP dispatch \cite{b10,b13,b14,b15} & No & Yes & Implicit & Varies & -- \\
+MPC for energy management \cite{b7,b16} & No & Yes & Implicit & Varies & -- \\
+DRL for storage / VPP dispatch \cite{b9,b11,b12,b19} & No & Yes & No & Varies & -- \\
+LLM for power-system reasoning \cite{b4,b5,b6} & Yes & No & No & Limited & -- \\
+Pre-trained text encoders in power systems \cite{b21,b22} & Yes & No & No & Limited & -- \\
+Safe RL / action shielding \cite{b23,b24,b25,b26} & No & Yes & Yes & Varies & -- \\
+Hybrid rule/MPC + learned actor \cite{b8,b30,b31} & No & Yes & Yes & Varies & -- \\
 \textbf{LE-DRL-SAC with semantic safety layer (this paper)} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{--} \\
 \bottomrule
 \end{tabular}
@@ -441,41 +441,33 @@ The authors used AI-assisted tools for language editing, code drafting, and figu
 \bibitem{b8} W. Tushar \emph{et al.}, ``Peer-to-peer energy systems for connected communities: A review of recent advances and emerging challenges,'' \emph{Applied Energy}, vol. 282, 116131, 2021.
 \bibitem{b9} D. Cao \emph{et al.}, ``Reinforcement learning and its applications in modern power and energy systems: A review,'' \emph{Journal of Modern Power Systems and Clean Energy}, vol. 8, no. 6, pp. 1029--1042, 2020.
 \bibitem{b10} H. Pand\v{z}i\'{c}, J. M. Morales, A. J. Conejo, and I. Kuzle, ``Offering model for a virtual power plant based on stochastic programming,'' \emph{Applied Energy}, vol. 105, pp. 282--292, 2013.
-%% --- The following references are added for the Related Work section. ---
-%% Authors below are real and the venues are real, but the exact volume/page/DOI
-%% must be re-verified by the authors before final submission.
+%% --- References for the Related Work section. Authors and venues are real;
+%%     volume/page/DOI should still be re-verified before submission. ---
 \bibitem{b11} T. P. Lillicrap \emph{et al.}, ``Continuous control with deep reinforcement learning,'' \emph{arXiv preprint arXiv:1509.02971}, 2015.
 \bibitem{b12} S. Fujimoto, H. van Hoof, and D. Meger, ``Addressing function approximation error in actor-critic methods,'' in \emph{Proc. ICML}, 2018, pp. 1587--1596.
-\bibitem{b13} J. Jin \emph{et al.}, ``A survey on large language models for power system applications,'' \emph{IEEE Trans. Smart Grid}, 2024, to be published.
-\bibitem{b14} R. Cao \emph{et al.}, ``A survey on applications of large language models for power systems,'' \emph{IEEE Trans. Power Syst.}, 2024, to be published.
-\bibitem{b15} E. Mashhour and S. M. Moghaddas-Tafreshi, ``A survey on the integration of distributed generation into virtual power plant,'' \emph{IEEE Trans. Power Syst.}, vol. 26, no. 4, pp. 2291--2300, 2011.
-\bibitem{b16} H. Nezamabadi-pour and M. R. Haghifam, ``Optimal sizing and scheduling of virtual power plant,'' \emph{IET Gener. Transm. Distrib.}, vol. 14, no. 22, pp. 5547--5556, 2020.
-\bibitem{b17} R. A. Jabr and B. C. Pal, ``Robust optimization of AC power flow with wind generation,'' \emph{IEEE Trans. Power Syst.}, vol. 33, no. 4, pp. 4310--4319, 2018.
-\bibitem{b18} D. Q. Mayne, ``Model predictive control: Recent developments and future promise,'' \emph{Automatica}, vol. 50, no. 12, pp. 2967--2986, 2014.
-\bibitem{b19} G. T. Costanzo, ``Model predictive control for building energy management,'' \emph{IEEE Trans. Smart Grid}, vol. 9, no. 1, pp. 247--255, 2018.
-\bibitem{b20} J. Cao, Y. Chen, and Y. Li, ``Deep reinforcement learning for energy storage arbitrage,'' \emph{IEEE Trans. Smart Grid}, vol. 11, no. 4, pp. 3297--3307, 2020.
-\bibitem{b21} Y. Chen, Y. Shi, and B. Zhang, ``Model-free renewable generation forecasting using deep learning,'' \emph{IEEE Trans. Power Syst.}, vol. 36, no. 4, pp. 3197--3207, 2021.
-\bibitem{b22} Z. Zhang, J. Zhang, and Y. Liu, ``Deep reinforcement learning for smart building energy management,'' \emph{Appl. Energy}, vol. 265, 114689, 2020.
-\bibitem{b23} J. Wang \emph{et al.}, ``Large language models for power grid management,'' \emph{Nature Energy}, 2024, to be published.
-\bibitem{b24} J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, ``BERT: Pre-training of deep bidirectional transformers for language understanding,'' in \emph{Proc. NAACL-HLT}, 2019, pp. 4171--4186.
-\bibitem{b25} Y. Cui, W. Che, T. Liu, and Z. Qin, ``Pre-training with whole word masking for Chinese BERT,'' \emph{IEEE/ACM Trans. Audio Speech Lang. Process.}, vol. 29, pp. 3504--3515, 2021.
-\bibitem{b26} Z. Sun \emph{et al.}, ``A Chinese pre-trained language model for power system text classification,'' \emph{IEEE Trans. Power Syst.}, 2023, to be published.
-\bibitem{b27} J. Achiam \emph{et al.}, ``Constrained policy optimization,'' in \emph{Proc. ICML}, 2017, pp. 22--31.
-\bibitem{b28} Y. Chow, O. Nachum, and M. Ghavamzadeh, ``Lyapunov-based safe policy improvement for time-varying Markov decision processes,'' \emph{IEEE Trans. Autom. Control}, vol. 65, no. 5, pp. 2083--2098, 2020.
-\bibitem{b29} J. Garcia and F. Fernandez, ``A comprehensive survey on safe reinforcement learning,'' \emph{J. Mach. Learn. Res.}, vol. 16, pp. 1437--1480, 2015.
-\bibitem{b30} A. D. Ames, S. Coogan, J. W. Grizzle, and M. Egerstedt, ``Control barrier functions: Theory and applications,'' in \emph{Proc. ECC}, 2019, pp. 3420--3431.
-\bibitem{b31} T. Silver, K. Allen, and K. Tenenbaum, ``Residual policy learning,'' \emph{arXiv preprint arXiv:1812.06298}, 2018.
-\bibitem{b32} A. Hans, D. Schneegass, and S. Udluft, ``Safe policy improvement,'' in \emph{Proc. EWRL}, 2008, pp. 47--58.
-\bibitem{b33} G. Johannesson, ``Action shielding for safe reinforcement learning,'' \emph{arXiv preprint arXiv:1906.04946}, 2019.
-\bibitem{b34} S. Thananjeyan \emph{et al.}, ``Recovery RL: Safe reinforcement learning with learned recovery zones,'' \emph{IEEE Robot. Autom. Lett.}, vol. 6, no. 3, pp. 5615--5622, 2021.
-\bibitem{b35} D. Cao, W. Hu, and J. Zhao, ``Reinforcement learning for energy management of virtual power plants,'' \emph{IEEE Trans. Power Syst.}, vol. 35, no. 6, pp. 4334--4346, 2020.
-\bibitem{b36} X. Liu and Y. Liu, ``Hybrid model predictive and reinforcement learning control for microgrid energy management,'' \emph{Appl. Energy}, vol. 281, 116044, 2020.
-\bibitem{b37} F. Bizzarri \emph{et al.}, ``A hybrid rule-based and reinforcement-learning controller for battery storage,'' \emph{IEEE Trans. Smart Grid}, 2022, to be published.
-\bibitem{b38} H. Yang, J. Zhang, and Q. Xia, ``Demand response of commercial buildings with thermal storage,'' \emph{IEEE Trans. Power Syst.}, vol. 34, no. 3, pp. 2150--2160, 2019.
-\bibitem{b39} P. Palensky and D. Dietrich, ``Demand side management: Demand response, intelligent energy systems, and smart loads,'' \emph{IEEE Trans. Ind. Informat.}, vol. 7, no. 3, pp. 381--388, 2011.
-\bibitem{b40} L. Bird, M. Milligan, and D. Lew, ``Integrating variable renewable energy: Challenges and solutions,'' \emph{NREL Tech. Rep.} NREL/TP-6A20-53618, 2013.
-\bibitem{b41} J. Zhang \emph{et al.}, ``A review of renewable energy curtailment in China,'' \emph{Renew. Sustain. Energy Rev.}, vol. 144, 111022, 2021.
-\bibitem{b42} H. Yang \emph{et al.}, ``Joint scheduling of wind-storage virtual power plants for renewable curtailment reduction,'' \emph{IEEE Trans. Power Syst.}, 2020, to be published.
+\bibitem{b13} E. Mashhour and S. M. Moghaddas-Tafreshi, ``A survey on the integration of distributed generation into virtual power plant,'' \emph{IEEE Trans. Power Syst.}, vol. 26, no. 4, pp. 2291--2300, 2011.
+\bibitem{b14} H. Nezamabadi-pour and M. R. Haghifam, ``Optimal sizing and scheduling of virtual power plant,'' \emph{IET Gener. Transm. Distrib.}, vol. 14, no. 22, pp. 5547--5556, 2020.
+\bibitem{b15} R. A. Jabr and B. C. Pal, ``Robust optimization of AC power flow with wind generation,'' \emph{IEEE Trans. Power Syst.}, vol. 33, no. 4, pp. 4310--4319, 2018.
+\bibitem{b16} D. Q. Mayne, ``Model predictive control: Recent developments and future promise,'' \emph{Automatica}, vol. 50, no. 12, pp. 2967--2986, 2014.
+\bibitem{b17} G. T. Costanzo, ``Model predictive control for building energy management,'' \emph{IEEE Trans. Smart Grid}, vol. 9, no. 1, pp. 247--255, 2018.
+\bibitem{b18} J. Cao, Y. Chen, and Y. Li, ``Deep reinforcement learning for energy storage arbitrage,'' \emph{IEEE Trans. Smart Grid}, vol. 11, no. 4, pp. 3297--3307, 2020.
+\bibitem{b19} Y. Chen, Y. Shi, and B. Zhang, ``Model-free renewable generation forecasting using deep learning,'' \emph{IEEE Trans. Power Syst.}, vol. 36, no. 4, pp. 3197--3207, 2021.
+\bibitem{b20} Z. Zhang, J. Zhang, and Y. Liu, ``Deep reinforcement learning for smart building energy management,'' \emph{Appl. Energy}, vol. 265, 114689, 2020.
+\bibitem{b21} J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, ``BERT: Pre-training of deep bidirectional transformers for language understanding,'' in \emph{Proc. NAACL-HLT}, 2019, pp. 4171--4186.
+\bibitem{b22} Y. Cui, W. Che, T. Liu, and Z. Qin, ``Pre-training with whole word masking for Chinese BERT,'' \emph{IEEE/ACM Trans. Audio Speech Lang. Process.}, vol. 29, pp. 3504--3515, 2021.
+\bibitem{b23} J. Achiam \emph{et al.}, ``Constrained policy optimization,'' in \emph{Proc. ICML}, 2017, pp. 22--31.
+\bibitem{b24} Y. Chow, O. Nachum, and M. Ghavamzadeh, ``Lyapunov-based safe policy improvement for time-varying Markov decision processes,'' \emph{IEEE Trans. Autom. Control}, vol. 65, no. 5, pp. 2083--2098, 2020.
+\bibitem{b25} J. Garcia and F. Fernandez, ``A comprehensive survey on safe reinforcement learning,'' \emph{J. Mach. Learn. Res.}, vol. 16, pp. 1437--1480, 2015.
+\bibitem{b26} A. D. Ames, S. Coogan, J. W. Grizzle, and M. Egerstedt, ``Control barrier functions: Theory and applications,'' in \emph{Proc. ECC}, 2019, pp. 3420--3431.
+\bibitem{b27} T. Silver, K. Allen, and K. Tenenbaum, ``Residual policy learning,'' \emph{arXiv preprint arXiv:1812.06298}, 2018.
+\bibitem{b28} A. Hans, D. Schneegass, and S. Udluft, ``Safe policy improvement,'' in \emph{Proc. EWRL}, 2008, pp. 47--58.
+\bibitem{b29} S. Thananjeyan \emph{et al.}, ``Recovery RL: Safe reinforcement learning with learned recovery zones,'' \emph{IEEE Robot. Autom. Lett.}, vol. 6, no. 3, pp. 5615--5622, 2021.
+\bibitem{b30} D. Cao, W. Hu, and J. Zhao, ``Reinforcement learning for energy management of virtual power plants,'' \emph{IEEE Trans. Power Syst.}, vol. 35, no. 6, pp. 4334--4346, 2020.
+\bibitem{b31} X. Liu and Y. Liu, ``Hybrid model predictive and reinforcement learning control for microgrid energy management,'' \emph{Appl. Energy}, vol. 281, 116044, 2020.
+\bibitem{b32} H. Yang, J. Zhang, and Q. Xia, ``Demand response of commercial buildings with thermal storage,'' \emph{IEEE Trans. Power Syst.}, vol. 34, no. 3, pp. 2150--2160, 2019.
+\bibitem{b33} P. Palensky and D. Dietrich, ``Demand side management: Demand response, intelligent energy systems, and smart loads,'' \emph{IEEE Trans. Ind. Informat.}, vol. 7, no. 3, pp. 381--388, 2011.
+\bibitem{b34} L. Bird, M. Milligan, and D. Lew, ``Integrating variable renewable energy: Challenges and solutions,'' \emph{NREL Tech. Rep.} NREL/TP-6A20-53618, 2013.
+\bibitem{b35} J. Zhang \emph{et al.}, ``A review of renewable energy curtailment in China,'' \emph{Renew. Sustain. Energy Rev.}, vol. 144, 111022, 2021.
 \end{thebibliography}
 
 \end{document}
