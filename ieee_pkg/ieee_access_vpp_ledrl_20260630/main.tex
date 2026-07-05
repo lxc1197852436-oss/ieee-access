@@ -6,6 +6,8 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -195,6 +197,44 @@ a^{\mathrm{final}}_t =
 (1-w)a^{\mathrm{SAC}}_t + w a^{\mathrm{sem}}_t,
 \end{equation}
 where $w \in [0,1]$ is the safety-layer blending weight. The final action is then clipped by the battery power and SOC feasibility limits. This layer does not allow the language model to output arbitrary dispatch commands; it only maps structured risk scores into a bounded charging/discharging correction. The weight $w$ is treated as an event-coverage-dependent quantity rather than a universal constant: on event categories used to design the prior, the prior is close to scenario-optimal and a high $w$ is preferred; on event categories absent from prior design, the prior has no matching branch and a low $w$ lets the learned actor take over. In the main experiment on the four known-event scenarios, $w=0.9$ is selected from a prior-weight sweep because it outperforms all implemented baselines, including the rule-based controller, while retaining a nonzero learned SAC component; the semantic prior amplitude is bounded by a guidance power of $2.0$ MW. Section~\ref{sec:unseen_event} examines the complementary regime---an unseen event category---and reports a configuration in which $w$ is set to zero and the semantic-consistency regularizer is relaxed so that the learned actor, advised by the LLM-derived features, produces the final action. The two configurations together instantiate the event-coverage principle; the transition between them is later automated by a learned gate in Section~\ref{sec:gated_moe}. To isolate the contribution of textual semantics from the safety-layer mechanism itself, we also evaluate a diagnostic variant that replaces the semantic prior with a purely numeric prior $a^{\mathrm{num}}_t$ derived from price, SOC, hour, and PV surplus only; the same blending formula yields a numeric safety layer used only as an ablation baseline, not as the final controller.
+
+The overall training and inference procedure is summarized in Algorithm~\ref{alg:ledrl}. Training proceeds in two offline stages---LLM caching and SAC learning---and inference applies the semantic safety layer on top of the learned actor, so the LLM is never invoked at deployment time.
+
+\begin{algorithm}[t!]
+\caption{LE-DRL-SAC Training and Semantic-Safety-Layer Inference}
+\label{alg:ledrl}
+\begin{algorithmic}[1]
+\Require event templates $\mathcal{E}$, LLM encoder $\mathrm{LLM}(\cdot)$, empty cache $\mathcal{C}$
+\Require semantic regularizer weight $\lambda_{\mathrm{sem}}$, safety weight $w$, guidance power $P_{\mathrm{guide}}$
+\State \textbf{// Stage 1: offline LLM caching (one query per distinct event template)}
+\For{each distinct template $e \in \mathcal{E}$}
+    \State $(r^{\mathrm{risk}}, r^{\mathrm{price}}, r^{\mathrm{load}}, r^{\mathrm{cur}}, b^{\mathrm{storage}}) \gets \mathrm{LLM}(e)$
+    \State clamp risk scores to $[0,1]$, storage bias to $[-1,1]$
+    \State $\mathcal{C}[e] \gets s^{\mathrm{sem}}$ \Comment{cached; no LLM call at runtime}
+\EndFor
+\State \textbf{// Stage 2: SAC training with semantic-consistency regularization}
+\State initialize actor $\pi_\theta$, critics $Q_{\phi_1}, Q_{\phi_2}$, replay buffer $\mathcal{D}$
+\For{each training episode}
+    \For{each 15-min step $t$}
+        \State observe $s^{\mathrm{num}}_t$ and event template $e_t$; load $s^{\mathrm{sem}}_t \gets \mathcal{C}[e_t]$
+        \State $s^{\mathrm{aug}}_t \gets [s^{\mathrm{num}}_t, s^{\mathrm{sem}}_t]$
+        \State sample $a_t \sim \pi_\theta(\cdot \mid s^{\mathrm{aug}}_t)$
+        \State clip $a_t$ by battery power/SOC feasibility; execute; observe $r_t, s^{\mathrm{num}}_{t+1}$
+        \State store $(s^{\mathrm{aug}}_t, a_t, r_t, s^{\mathrm{aug}}_{t+1})$ in $\mathcal{D}$
+        \State sample minibatch from $\mathcal{D}$; update critics by TD targets
+        \State update $\pi_\theta$ by $\nabla_\theta \big[ \alpha \log \pi_\theta - \min_i Q_{\phi_i} + \lambda_{\mathrm{sem}}\|a_t - a^{\mathrm{sem}}(s^{\mathrm{aug}}_t)\|^2 \big]$
+    \EndFor
+\EndFor
+\State \textbf{// Stage 3: inference with the semantic safety layer}
+\Function{Dispatch}{$s^{\mathrm{num}}_t, e_t$}
+    \State $s^{\mathrm{sem}}_t \gets \mathcal{C}[e_t]$;\ \ $s^{\mathrm{aug}}_t \gets [s^{\mathrm{num}}_t, s^{\mathrm{sem}}_t]$
+    \State $a^{\mathrm{SAC}}_t \gets \pi_\theta(s^{\mathrm{aug}}_t)$ \Comment{deterministic mean}
+    \State $a^{\mathrm{sem}}_t \gets$ risk-consistent prior, amplitude $\leq P_{\mathrm{guide}}$
+    \State $a^{\mathrm{final}}_t \gets (1-w)\,a^{\mathrm{SAC}}_t + w\,a^{\mathrm{sem}}_t$
+    \State \Return clip($a^{\mathrm{final}}_t$) by battery feasibility
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Compared Policies}
 The following policies are evaluated:
@@ -538,6 +578,39 @@ Real DE-LU price + real weather & \textbf{+2,201} & [+593, +3,627] & 4/5 \\
 \subsection{Learned Event-Coverage Gate}
 \label{sec:gated_moe}
 The two fixed configurations in the preceding subsections---high $w$ on known events and $w=0$ with a relaxed regularizer on unseen events---instantiate the event-coverage principle but require the coverage label to be known at deployment time. This subsection examines whether the label can itself be learned from data. A gated mixture-of-experts controller is constructed: two SAC experts share the same LLM-augmented state but differ in regularization---a \emph{prior} expert with the semantic-consistency regularizer (strong on known events) and a \emph{free} expert without it (adaptive on unseen events)---and a small gate network $g_\psi(s)$ maps the encoded state to a blend weight $w\in[0,1]$ so that the final action is $a=(1-w)\,a^{\mathrm{free}}+w\,a^{\mathrm{prior}}$. The gate is trained by binary cross-entropy on a per-batch-normalized $Q$-difference target: for each state, the target is $1$ (favor the prior expert) where the prior expert's critic reports a higher $Q$ than the free expert's, and $0$ otherwise. Per-batch normalization removes the shared scale bias between the two critics so that the gate learns only the state-relative ordering, not a global offset.
+
+The gate-training procedure is summarized in Algorithm~\ref{alg:gate}. The two SAC experts are trained first; the gate is then fitted on a held-out batch by binary cross-entropy on the per-batch-normalized $Q$-difference target, so that no event-coverage label is supplied.
+
+\begin{algorithm}[t!]
+\caption{Learned Event-Coverage Gate Training}
+\label{alg:gate}
+\begin{algorithmic}[1]
+\Require LLM-augmented state $s^{\mathrm{aug}}$, replay batch $\mathcal{B} \subset \mathcal{D}$
+\Require trained prior expert $\pi^{\mathrm{prior}}_\theta, Q^{\mathrm{prior}}_\phi$; trained free expert $\pi^{\mathrm{free}}_\theta, Q^{\mathrm{free}}_\phi$
+\Require gate network $g_\psi$ (outputs $w \in [0,1]$)
+\State \textbf{// Stage 1: pre-train the two SAC experts (Algorithm~\ref{alg:ledrl} Stage 2)}
+\State train $\pi^{\mathrm{prior}}_\theta$ \textbf{with} the semantic-consistency regularizer ($\lambda_{\mathrm{sem}}>0$)
+\State train $\pi^{\mathrm{free}}_\theta$ \textbf{without} the regularizer ($\lambda_{\mathrm{sem}}=0$)
+\State \textbf{// Stage 2: build per-batch-normalized Q-difference targets}
+\State sample batch $\mathcal{B} = \{s^{\mathrm{aug}}_i, a_i\}_{i=1}^{N}$
+\State $q^{\mathrm{prior}}_i \gets Q^{\mathrm{prior}}_\phi(s^{\mathrm{aug}}_i, a_i)$,\quad $q^{\mathrm{free}}_i \gets Q^{\mathrm{free}}_\phi(s^{\mathrm{aug}}_i, a_i)$
+\State $\tilde{q}^{\mathrm{prior}} \gets (q^{\mathrm{prior}} - \mu)/\sigma$,\quad $\tilde{q}^{\mathrm{free}} \gets (q^{\mathrm{free}} - \mu)/\sigma$ \Comment{per-batch normalization}
+\State $y_i \gets \mathbb{1}[\tilde{q}^{\mathrm{prior}}_i > \tilde{q}^{\mathrm{free}}_i]$ \Comment{1: defer to prior; 0: defer to free}
+\State \textbf{// Stage 3: train the gate by binary cross-entropy}
+\For{gradient steps}
+    \State $w_i \gets g_\psi(s^{\mathrm{aug}}_i)$
+    \State $\mathcal{L}_{\mathrm{gate}} \gets -\frac{1}{N}\sum_i \big[ y_i \log w_i + (1-y_i)\log(1-w_i) \big]$
+    \State $\psi \gets \psi - \eta\, \nabla_\psi \mathcal{L}_{\mathrm{gate}}$
+\EndFor
+\State \textbf{// Stage 4: gated deployment}
+\Function{GatedDispatch}{$s^{\mathrm{aug}}_t$}
+    \State $w \gets g_\psi(s^{\mathrm{aug}}_t)$
+    \State $a^{\mathrm{prior}} \gets \pi^{\mathrm{prior}}_\theta(s^{\mathrm{aug}}_t)$;\quad $a^{\mathrm{free}} \gets \pi^{\mathrm{free}}_\theta(s^{\mathrm{aug}}_t)$
+    \State $a \gets (1-w)\,a^{\mathrm{free}} + w\,a^{\mathrm{prior}}$
+    \State \Return clip($a$) by battery feasibility
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
 
 The gate was trained on S1--S5 (five seeds, 80 episodes) and evaluated on the four known events and the four unseen variants. Table~\ref{tab:gated_moe} reports the reward and the mean gate weight $w$ per scenario. The gate learns the intended event-coverage pattern: on the four known events the mean $w$ is $0.65$ (deferring to the regularized prior expert), whereas on S5 and the four same-structure variants V1--V4 the mean $w$ drops to $0.31$--$0.48$ (deferring to the free expert). Here S5 and V1--V4 share the negative-price surplus structure that the hand-crafted prior has no branch for; S5 is included in the gate's training set, whereas V1--V4 are held out, and the gate assigns both a low $w$ purely from $Q$-value disagreement. This is the central observation: a learned gate can recover the event-coverage split that the two fixed configurations imposed by hand, using only $Q$-value disagreement as a signal and without being told which events are known.
 
