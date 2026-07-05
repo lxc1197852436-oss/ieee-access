@@ -83,107 +83,107 @@ def ortho(ax, start, end, color=None, lw=1.15, angleA=0, angleB=90, rad=9,
 
 
 def header(ax, cx, text, color):
-    ax.text(cx, 0.885, text, ha="center", va="center", fontsize=9.0,
+    ax.text(cx, 0.860, text, ha="center", va="center", fontsize=8.2,
             fontweight="bold", color=color)
 
 
 def draw() -> None:
     setup_style()
-    fig, ax = plt.subplots(figsize=(7.16, 3.75))
+    fig, ax = plt.subplots(figsize=(9.0, 4.15))
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
 
-    ax.text(0.5, 0.965, "Language-Enhanced VPP Dispatch with a Learned Event-Coverage Gate",
-            ha="center", va="center", fontsize=11.0, fontweight="bold", color=C["text"])
+    ax.text(0.5, 0.960, "Language-Enhanced VPP Dispatch with a Learned Event-Coverage Gate",
+            ha="center", va="center", fontsize=10.0, fontweight="bold", color=C["text"])
 
     # swim lanes
-    lane(ax, 0.015, 0.205, C["lane_a"])
-    lane(ax, 0.215, 0.410, C["lane_b"])
-    lane(ax, 0.420, 0.775, C["lane_c"])
-    lane(ax, 0.785, 0.985, C["lane_d"])
-    header(ax, 0.110, "(a) Inputs", C["in_edge"])
-    header(ax, 0.312, "(b) LLM advisor", C["llm_edge"])
-    header(ax, 0.597, "(c) Gated mixture-of-experts SAC", C["gate_edge"])
-    header(ax, 0.885, "(d) Output & evaluation", C["out_edge"])
+    lane(ax, 0.015, 0.190, C["lane_a"])
+    lane(ax, 0.200, 0.375, C["lane_b"])
+    lane(ax, 0.385, 0.790, C["lane_c"])
+    lane(ax, 0.800, 0.985, C["lane_d"])
+    header(ax, 0.102, "(a) Inputs", C["in_edge"])
+    header(ax, 0.288, "(b) LLM advisor", C["llm_edge"])
+    header(ax, 0.588, "(c) Gated mixture-of-experts SAC", C["gate_edge"])
+    header(ax, 0.892, "(d) Output & evaluation", C["out_edge"])
 
     # (a) inputs
-    box(ax, 0.110, 0.660, 0.165, 0.135,
+    box(ax, 0.102, 0.640, 0.150, 0.150,
         "Operational\ntext events\n(weather, market,\ncurtailment)",
-        C["in_face"], C["in_edge"], size=7.6)
-    box(ax, 0.110, 0.340, 0.165, 0.135,
+        C["in_face"], C["in_edge"], size=7.2)
+    box(ax, 0.102, 0.320, 0.150, 0.150,
         "Numerical\nVPP state\n(load, PV, price,\nSOC, time)",
-        C["in_face"], C["in_edge"], size=7.6)
+        C["in_face"], C["in_edge"], size=7.2)
 
     # (b) LLM advisor
-    box(ax, 0.312, 0.660, 0.165, 0.135,
+    box(ax, 0.288, 0.640, 0.150, 0.150,
         "DeepSeek\nsemantic encoder\n(cached, emits\nno action)",
-        C["llm_face"], C["llm_edge"], weight="bold", size=7.6)
-    box(ax, 0.312, 0.400, 0.165, 0.115,
+        C["llm_face"], C["llm_edge"], weight="bold", size=7.2)
+    box(ax, 0.288, 0.360, 0.150, 0.120,
         "Semantic risk\nvector $s^{sem}$\n(5-dim, [0,1])",
-        C["llm_face"], C["llm_edge"], size=7.6)
+        C["llm_face"], C["llm_edge"], size=7.2)
 
     # (c) gated MoE
-    box(ax, 0.490, 0.500, 0.105, 0.150,
-        "Augmented\nstate\n$s^{aug}=$\n$[s^{num},s^{sem}]$",
-        C["neutral_face"], C["neutral_edge"], size=7.5)
-    box(ax, 0.640, 0.660, 0.170, 0.120,
+    box(ax, 0.450, 0.480, 0.095, 0.170,
+        "Augmented\nstate\n$s^{aug}\\!=$\n$[s^{num}\\!,s^{sem}]$",
+        C["neutral_face"], C["neutral_edge"], size=7.0)
+    box(ax, 0.600, 0.660, 0.150, 0.115,
         "SAC-prior expert\n(regularized;\nstrong on known)",
-        C["prior_face"], C["prior_edge"], weight="bold", size=7.5)
-    box(ax, 0.640, 0.340, 0.170, 0.120,
+        C["prior_face"], C["prior_edge"], weight="bold", size=7.0)
+    box(ax, 0.600, 0.300, 0.150, 0.115,
         "SAC-free expert\n(no regularizer;\nadaptive on unseen)",
-        C["free_face"], C["free_edge"], weight="bold", size=7.5)
-    box(ax, 0.640, 0.500, 0.170, 0.095,
-        "Learned gate\n$g_\\psi(s)\\!\\to\\! w\\in[0,1]$",
-        C["gate_face"], C["gate_edge"], weight="bold", size=7.5)
-    box(ax, 0.740, 0.500, 0.055, 0.300,
-        "Blend\n$a=$\n$(1\\!-\\!w)a^{free}$\n$+\\,w\\,a^{prior}$",
-        C["neutral_face"], C["neutral_edge"], size=6.8)
+        C["free_face"], C["free_edge"], weight="bold", size=7.0)
+    box(ax, 0.588, 0.480, 0.150, 0.090,
+        "Learned gate\n$g_\\psi(s)\\!\\to\\! w$",
+        C["gate_face"], C["gate_edge"], weight="bold", size=7.0)
+    box(ax, 0.740, 0.480, 0.078, 0.200,
+        "Blend\n$a=(1\\!-\\!w)a^{free}$\n$+\\,w\\,a^{prior}$",
+        C["neutral_face"], C["neutral_edge"], size=6.6)
 
     # (d) output
-    box(ax, 0.885, 0.660, 0.170, 0.120,
+    box(ax, 0.892, 0.660, 0.160, 0.120,
         "Feasibility clip\n(battery power,\nSOC limits)",
-        C["out_face"], C["out_edge"], size=7.6)
-    box(ax, 0.885, 0.470, 0.170, 0.095,
+        C["out_face"], C["out_edge"], size=7.2)
+    box(ax, 0.892, 0.470, 0.160, 0.095,
         "Final dispatch\naction $a^{final}$",
-        C["out_face"], C["out_edge"], weight="bold", size=7.6)
-    box(ax, 0.885, 0.260, 0.170, 0.140,
+        C["out_face"], C["out_edge"], weight="bold", size=7.2)
+    box(ax, 0.892, 0.255, 0.160, 0.140,
         "Evaluation\nreward, CVaR,\nthroughput,\nOOD real weather,\nunseen-event",
-        C["neutral_face"], C["neutral_edge"], size=7.5)
+        C["neutral_face"], C["neutral_edge"], size=7.0)
 
     # arrows -------------------------------------------------------
     # inputs -> advisor
-    straight(ax, (0.193, 0.660), (0.230, 0.660), C["in_edge"])           # text -> encoder
-    straight(ax, (0.312, 0.593), (0.312, 0.458), C["llm_edge"])          # encoder -> s^sem
+    straight(ax, (0.177, 0.640), (0.213, 0.640), C["in_edge"])           # text -> encoder
+    straight(ax, (0.288, 0.565), (0.288, 0.420), C["llm_edge"])          # encoder -> s^sem
     # into augmented state (orthogonal, no diagonals)
-    ortho(ax, (0.395, 0.400), (0.4375, 0.470), C["llm_edge"],
-          angleA=0, angleB=90, rad=7)                                    # s^sem -> aug
-    ortho(ax, (0.193, 0.340), (0.4375, 0.470), C["in_edge"],
-          angleA=0, angleB=-90, rad=7)                                   # num state -> aug
+    ortho(ax, (0.363, 0.360), (0.4025, 0.450), C["llm_edge"],
+          angleA=0, angleB=90, rad=6)                                    # s^sem -> aug
+    ortho(ax, (0.177, 0.320), (0.4025, 0.450), C["in_edge"],
+          angleA=0, angleB=-90, rad=6)                                   # num state -> aug
     # augmented -> experts and gate
-    ortho(ax, (0.5425, 0.545), (0.555, 0.660), C["neutral_edge"],
-          angleA=0, angleB=90, rad=7)                                    # aug -> prior
-    ortho(ax, (0.5425, 0.455), (0.555, 0.340), C["neutral_edge"],
-          angleA=0, angleB=-90, rad=7)                                   # aug -> free
-    straight(ax, (0.5425, 0.500), (0.555, 0.500), C["neutral_edge"])     # aug -> gate
-    # experts + gate -> blend (orthogonal), actions carried as labels
-    ortho(ax, (0.725, 0.660), (0.7125, 0.585), C["prior_edge"],
-          angleA=0, angleB=90, rad=6, label="$a^{prior}$", loff=(0.028, 0.028))
-    ortho(ax, (0.725, 0.340), (0.7125, 0.415), C["free_edge"],
-          angleA=0, angleB=-90, rad=6, label="$a^{free}$", loff=(0.028, -0.028))
-    straight(ax, (0.725, 0.500), (0.7125, 0.500), C["gate_edge"],
-             label="$w$", loff=(0.0, 0.028))
+    ortho(ax, (0.4975, 0.525), (0.525, 0.660), C["neutral_edge"],
+          angleA=0, angleB=90, rad=6)                                    # aug -> prior
+    ortho(ax, (0.4975, 0.435), (0.525, 0.300), C["neutral_edge"],
+          angleA=0, angleB=-90, rad=6)                                   # aug -> free
+    straight(ax, (0.4975, 0.480), (0.513, 0.480), C["neutral_edge"])     # aug -> gate
+    # experts + gate -> blend (orthogonal); action labels placed clear of the box
+    ortho(ax, (0.675, 0.660), (0.701, 0.570), C["prior_edge"],
+          angleA=0, angleB=90, rad=5, label="$a^{prior}$", loff=(-0.030, 0.030))
+    ortho(ax, (0.675, 0.300), (0.701, 0.390), C["free_edge"],
+          angleA=0, angleB=-90, rad=5, label="$a^{free}$", loff=(-0.030, -0.030))
+    straight(ax, (0.663, 0.480), (0.701, 0.480), C["gate_edge"],
+             label="$w$", loff=(0.0, 0.030))
     # blend -> output
-    ortho(ax, (0.7675, 0.560), (0.800, 0.660), C["out_edge"],
-          angleA=0, angleB=90, rad=6)                                    # blend -> clip
-    straight(ax, (0.885, 0.600), (0.885, 0.518), C["out_edge"])          # clip -> final
-    straight(ax, (0.885, 0.422), (0.885, 0.330), C["neutral_edge"])      # final -> eval
+    ortho(ax, (0.779, 0.545), (0.812, 0.660), C["out_edge"],
+          angleA=0, angleB=90, rad=5)                                    # blend -> clip
+    straight(ax, (0.892, 0.600), (0.892, 0.518), C["out_edge"])          # clip -> final
+    straight(ax, (0.892, 0.422), (0.892, 0.325), C["neutral_edge"])      # final -> eval
 
     # gate-semantics caption + legend
     ax.text(0.5, 0.028,
             "Gate semantics:  high $w$ on known events (defer to prior)   /   "
             "low $w$ on unseen events (defer to free actor)",
-            ha="center", va="center", fontsize=7.8, fontstyle="italic",
+            ha="center", va="center", fontsize=7.6, fontstyle="italic",
             color=C["gate_edge"])
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
