@@ -46,11 +46,14 @@ NEG_EVENT_TEXT = (
 )
 
 # (variant_id, name, seed, period, dip_depth, pv_scale, season, start)
+# V4 is a PV-capacity dimension: 4 MW plant (vs 5 MW in V1) under the same
+# noon negative-price structure, so the prior's PV-surplus branch still
+# applies but the surplus-to-load ratio differs.
 VARIANTS = [
     ("V1", "S5基准变体-午间负电价夏季", 2060, "noon", -460.0, 1.0, "summer", "2025-07-29"),
     ("V2", "深度负电价-午间夏季", 2061, "noon", -650.0, 1.0, "summer", "2025-07-29"),
     ("V3", "冬季负电价-午间弱光伏", 2062, "noon", -460.0, 0.35, "winter", "2025-01-13"),
-    ("V4", "夜间负电价-风电过剩无光伏", 2063, "night", -460.0, 1.0, "summer", "2025-07-29"),
+    ("V4", "4MW光伏午间负电价夏季", 2063, "noon", -460.0, 0.8, "summer", "2025-07-29"),
 ]
 
 

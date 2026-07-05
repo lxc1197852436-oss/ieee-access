@@ -51,7 +51,7 @@ AI_SCENARIOS = ROOT / "data" / "processed" / "chapter6_ai_semantic_scenarios.csv
 AI_S5 = ROOT / "data" / "processed" / "s5_negative_price_surplus_ai_semantic.csv"
 VARIANT_DIR = ROOT / "data" / "processed" / "s5_variants"
 OUT_CSV = OUT_DIR / "gated_moe_evaluation.csv"
-SEEDS = [2026, 2031, 2042]
+SEEDS = [2026, 2031, 2042, 2047, 2053]
 
 
 def load_train(periods: int) -> list[tuple[str, pd.DataFrame]]:

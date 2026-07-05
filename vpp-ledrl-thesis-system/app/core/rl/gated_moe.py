@@ -146,10 +146,11 @@ class GatedMoEAgent:
     def update_gate(self, states_np: np.ndarray) -> float:
         """Train the gate to follow the expert with higher Q.
 
-        For each state in the batch, compute Q_prior and Q_free under each
-        expert's critic (using that expert's own current actor action). The
-        gate target is 1 (favor prior) where Q_prior > Q_free, else 0. Train
-        gate with BCE on this soft target.
+        The two experts' Q scales are not directly comparable (different
+        regularizers shift their Q magnitudes), so we normalize per-batch:
+        the gate target is the softmax of (Q_prior - Q_free) over the batch,
+        which is invariant to a shared additive bias and captures only the
+        relative ordering across states. A temperature scales the signal.
         """
         states = torch.as_tensor(states_np, dtype=torch.float32, device=self.device)
         with torch.no_grad():
@@ -159,10 +160,11 @@ class GatedMoEAgent:
             q1f, q2f = self.sac_free.critic(states, a_free)
             q_prior = torch.min(q1p, q2p).squeeze(-1)
             q_free = torch.min(q1f, q2f).squeeze(-1)
-            # soft target: sigmoid of Q-difference, smoothed
-            diff = (q_prior - q_free)
-            target = torch.sigmoid(diff * 0.05)  # gentle, avoid hard labels
-            target = target.unsqueeze(-1)
+            diff = q_prior - q_free
+            # per-batch normalization removes the shared scale bias, then a
+            # temperature makes the signal strong enough to learn from.
+            diff_norm = (diff - diff.mean()) / (diff.std() + 1e-6)
+            target = torch.sigmoid(diff_norm * 2.0).unsqueeze(-1)
         w_pred = self.gate(states)
         loss = F.binary_cross_entropy(w_pred, target)
         self.gate_opt.zero_grad()
@@ -185,7 +187,9 @@ class GatedMoEAgent:
     def load(cls, path: str | Path, encoder: StateEncoder, device: str = "cpu") -> "GatedMoEAgent":
         path = Path(path)
         payload = torch.load(path, map_location=device)
-        cfg = GatedMoEConfig(**payload["config"], device=device)
+        cfg_dict = dict(payload["config"])
+        cfg_dict["device"] = device
+        cfg = GatedMoEConfig(**cfg_dict)
         agent = cls(cfg, encoder)
         agent.gate.load_state_dict(payload["gate"])
         prior_path = str(path).replace(".pt", "_prior.pt")
