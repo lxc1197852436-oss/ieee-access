@@ -57,6 +57,8 @@ class GatedMoEConfig:
     # agent.config.include_semantic / semantic_mode) works for this agent.
     include_semantic: bool = True
     semantic_mode: str = "native"
+    action_limit: float = 2.0
+    use_ai_semantics: bool = True
 
 
 class GateNet(nn.Module):
