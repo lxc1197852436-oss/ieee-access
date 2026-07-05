@@ -166,11 +166,12 @@ def draw() -> None:
     ortho(ax, (0.4975, 0.435), (0.525, 0.300), C["neutral_edge"],
           angleA=0, angleB=-90, rad=6)                                   # aug -> free
     straight(ax, (0.4975, 0.480), (0.513, 0.480), C["neutral_edge"])     # aug -> gate
-    # experts + gate -> blend (orthogonal); action labels placed clear of the box
-    ortho(ax, (0.675, 0.660), (0.701, 0.570), C["prior_edge"],
-          angleA=0, angleB=90, rad=5, label="$a^{prior}$", loff=(-0.030, 0.030))
-    ortho(ax, (0.675, 0.300), (0.701, 0.390), C["free_edge"],
-          angleA=0, angleB=-90, rad=5, label="$a^{free}$", loff=(-0.030, -0.030))
+    # experts + gate -> blend (orthogonal); arrows enter blend from top/bottom/left
+    # so action labels sit in clear space beside the vertical segments
+    ortho(ax, (0.675, 0.660), (0.740, 0.580), C["prior_edge"],
+          angleA=0, angleB=-90, rad=5, label="$a^{prior}$", loff=(0.022, 0.0))
+    ortho(ax, (0.675, 0.300), (0.740, 0.380), C["free_edge"],
+          angleA=0, angleB=90, rad=5, label="$a^{free}$", loff=(0.022, 0.0))
     straight(ax, (0.663, 0.480), (0.701, 0.480), C["gate_edge"],
              label="$w$", loff=(0.0, 0.030))
     # blend -> output
