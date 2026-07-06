@@ -71,6 +71,14 @@
       "n_rows": 672,
       "n_events": 2,
       "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s8_freq_reserve_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s8_freq_reserve_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s8_freq_reserve_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 2,
+      "status": "ok"
     }
   ],
   "keyword_source": "app.core.semantic.LocalSemanticEncoder",

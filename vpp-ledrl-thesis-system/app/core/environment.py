@@ -97,7 +97,18 @@ class VPPEnv:
         curtailment_mwh = max(0.0, pv - load - max(0.0, -actual_mw)) * cfg.dt_hours
         curtailment_cost = curtailment_mwh * cfg.curtailment_penalty_yuan_per_mwh
         violation = cfg.violation_penalty_yuan if abs(actual_mw - requested) > 1e-6 else 0.0
-        reward = revenue - degradation - curtailment_cost - violation
+        # Reserve-capacity penalty: quadratic on SOC deviation from a mid-band
+        # target, active ONLY during reserve-request event intervals (event_type
+        # contains "调频"). This makes "keep SOC mid-band for bidirectional
+        # reserve" a reward payoff that is contingent on the textual event --
+        # so a policy must know WHEN the reserve request applies (via the
+        # semantic channel) to respond correctly. Default penalty 0.0 leaves
+        # the reward identical to the original formulation for all scenarios.
+        reserve_cost = 0.0
+        if cfg.reserve_penalty_yuan_per_dev > 0.0 and "调频" in str(row.get("event_type", "")):
+            reserve_dev = self.soc - cfg.reserve_soc_target
+            reserve_cost = cfg.reserve_penalty_yuan_per_dev * (reserve_dev * reserve_dev)
+        reward = revenue - degradation - curtailment_cost - violation - reserve_cost
 
         record = {
             "timestamp": row["timestamp"].isoformat(),
@@ -115,6 +126,7 @@ class VPPEnv:
             "degradation_yuan": float(degradation),
             "curtailment_cost_yuan": float(curtailment_cost),
             "violation_yuan": float(violation),
+            "reserve_cost_yuan": float(reserve_cost),
             "reward_yuan": float(reward),
         }
         self.history.append(record)

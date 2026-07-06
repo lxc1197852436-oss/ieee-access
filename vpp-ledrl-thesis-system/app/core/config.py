@@ -15,6 +15,13 @@ class VPPConfig:
     curtailment_penalty_yuan_per_mwh: float = 80.0
     violation_penalty_yuan: float = 300.0
     dt_hours: float = 0.25
+    # Reserve (frequency-regulation) reward: penalizes SOC deviation from a target
+    # mid-band so that "keep SOC in the middle for bidirectional reserve" has a
+    # reward payoff. Default 0.0 => disabled, preserving the original reward for
+    # all existing scenarios (S1-S5, S7). S8 enables it to make the
+    # "reserve-capacity" event semantics load-bearing in the reward.
+    reserve_soc_target: float = 0.5
+    reserve_penalty_yuan_per_dev: float = 0.0
 
 
 @dataclass(frozen=True)

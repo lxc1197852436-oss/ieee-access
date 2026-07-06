@@ -44,6 +44,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover
     print(exc)
     raise SystemExit(1) from exc
 
+from app.core.config import VPPConfig  # noqa: E402
 from app.core.environment import VPPEnv  # noqa: E402
 from app.core.experiment_design import SCENARIOS  # noqa: E402
 from app.core.rl.ledrl_agent import LEDRLAgent, LEDRLConfig  # noqa: E402
@@ -65,16 +66,19 @@ SOURCE_FILES = {
         "scenarios": "chapter6_ai_semantic_scenarios.csv",
         "s5": "s5_negative_price_surplus_ai_semantic.csv",
         "s7": "s7_export_curtailed_ai_semantic.csv",
+        "s8": "s8_freq_reserve_ai_semantic.csv",
     },
     "keyword": {
         "scenarios": "chapter6_ai_semantic_scenarios_keyword.csv",
         "s5": "s5_negative_price_surplus_ai_semantic_keyword.csv",
         "s7": "s7_export_curtailed_ai_semantic_keyword.csv",
+        "s8": "s8_freq_reserve_ai_semantic_keyword.csv",
     },
     "noisy": {
         "scenarios": "chapter6_ai_semantic_scenarios_noisy.csv",
         "s5": "s5_negative_price_surplus_ai_semantic_noisy.csv",
         "s7": "s7_export_curtailed_ai_semantic_noisy.csv",
+        "s8": "s8_freq_reserve_ai_semantic_noisy.csv",
     },
 }
 
@@ -94,7 +98,7 @@ def load_csv(name: str) -> pd.DataFrame:
     return df
 
 
-def training_sets_with_s5(source: str, periods_per_scenario: int, include_s5: bool = True, include_s7: bool = False) -> list[tuple[str, pd.DataFrame]]:
+def training_sets_with_s5(source: str, periods_per_scenario: int, include_s5: bool = True, include_s7: bool = False, include_s8: bool = False) -> list[tuple[str, pd.DataFrame]]:
     files = SOURCE_FILES[source]
     ai = load_csv(files["scenarios"])
     rows = []
@@ -107,15 +111,18 @@ def training_sets_with_s5(source: str, periods_per_scenario: int, include_s5: bo
     if include_s7:
         s7 = load_csv(files["s7"]).head(periods_per_scenario).reset_index(drop=True)
         rows.append(("S7", s7))
+    if include_s8:
+        s8 = load_csv(files["s8"]).head(periods_per_scenario).reset_index(drop=True)
+        rows.append(("S8", s8))
     return rows
 
 
-def train_one(agent, train_data, seed, args) -> list[dict]:
+def train_one(agent, train_data, seed, args, env_config=None) -> list[dict]:
     logs = []
     bar = ProgressBar(args.episodes, label=f"train {agent.name} seed={seed}")
     for ep in range(1, args.episodes + 1):
         scenario_id, rows = train_data[(ep + seed) % len(train_data)]
-        env = VPPEnv(rows)
+        env = VPPEnv(rows, config=env_config)
         initial_soc = 0.35 + 0.3 * ((ep - 1) % 5) / 4
         state = env.reset(initial_soc=initial_soc)
         ep_reward = 0.0
@@ -152,7 +159,7 @@ def train_one(agent, train_data, seed, args) -> list[dict]:
     return logs
 
 
-def eval_on_scenarios(agent, train_data) -> list[dict]:
+def eval_on_scenarios(agent, train_data, env_config=None) -> list[dict]:
     """Evaluate a trained agent on every training scenario (deterministic).
 
     Returns one row per (scenario_id) with total_reward, CVaR, throughput, and
@@ -161,7 +168,7 @@ def eval_on_scenarios(agent, train_data) -> list[dict]:
     """
     rows = []
     for scenario_id, data in train_data:
-        env = VPPEnv(data)
+        env = VPPEnv(data, config=env_config)
         state = env.reset(initial_soc=0.5)
         while not env.done():
             action = agent.act(state, deterministic=True)
@@ -196,6 +203,12 @@ def main() -> None:
     p.add_argument("--include-s7", action="store_true", default=False,
                    help="Include S7 (export-curtailed local absorption) in training. "
                         "S7 is the keyword-blind event that tests DeepSeek distinctness.")
+    p.add_argument("--include-s8", action="store_true", default=False,
+                   help="Include S8 (frequency-reserve request) in training. "
+                        "S8 makes 'keep SOC mid-band' reward-contingent on the textual event.")
+    p.add_argument("--reserve-penalty", type=float, default=0.0,
+                   help="Reserve-capacity penalty coefficient (per unit SOC deviation^2). "
+                        "Only active during event_type containing '调频'. 0.0 = disabled.")
     p.add_argument("--episodes", type=int, default=80)
     p.add_argument("--seeds", type=str, default="2026,2031,2042")
     p.add_argument("--train-periods-per-scenario", type=int, default=288)
@@ -229,15 +242,17 @@ def main() -> None:
     # avoid checkpoint collisions when the same source is trained under different
     # configs (e.g. main actor_loss=3.0/w=0.9 vs relaxed actor_loss=0.0/w=0.0).
     tag = "_s1to4"
-    if args.include_s5 and args.include_s7:
+    if args.include_s8:
+        tag = "_s8"  # S8 is the primary S8-experiment; other combos not used
+    elif args.include_s5 and args.include_s7:
         tag = "_s5s7"
     elif args.include_s5:
         tag = "_s5"
     elif args.include_s7:
         tag = "_s7"
-    # Config tag: short suffix encoding actor_loss and guidance_weight so main vs
-    # relaxed runs of the same source land in different dirs.
     cfg_tag = f"_al{args.semantic_actor_loss_weight}_w{args.semantic_guidance_weight}"
+    if args.reserve_penalty > 0:
+        cfg_tag += f"_rp{args.reserve_penalty}"
     out_dir = OUT_BASE / f"m5_{args.semantic_source}{tag}{cfg_tag}"
     ckpt_dir = out_dir / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
@@ -245,9 +260,14 @@ def main() -> None:
     train_data = training_sets_with_s5(
         args.semantic_source, args.train_periods_per_scenario,
         include_s5=args.include_s5, include_s7=args.include_s7,
+        include_s8=args.include_s8,
     )
     s5_data = next((d for sid, d in train_data if sid == "S5"), None)
     print(f"semantic_source={args.semantic_source}  scenarios={[sid for sid,_ in train_data]}  seeds={seeds}")
+
+    # Build env config with optional reserve penalty (S8). Default 0.0 => original
+    # reward for all existing scenarios; only >0 when --reserve-penalty is passed.
+    env_config = VPPConfig(reserve_penalty_yuan_per_dev=args.reserve_penalty)
 
     all_logs = []
     eval_rows = []
@@ -282,12 +302,12 @@ def main() -> None:
                 ))
             else:
                 raise ValueError(model)
-            logs = train_one(agent, train_data, seed, args)
+            logs = train_one(agent, train_data, seed, args, env_config=env_config)
             all_logs.extend(logs)
             ckpt = ckpt_dir / f"{safe(model)}_seed{seed}.pt"
             agent.sac.save(ckpt)
             checkpoints.append({"seed": seed, "model": model, "checkpoint": str(ckpt)})
-            scenario_metrics = eval_on_scenarios(agent, train_data)
+            scenario_metrics = eval_on_scenarios(agent, train_data, env_config=env_config)
             for sm in scenario_metrics:
                 eval_rows.append({
                     "semantic_source": args.semantic_source, "seed": seed, "model": model,
