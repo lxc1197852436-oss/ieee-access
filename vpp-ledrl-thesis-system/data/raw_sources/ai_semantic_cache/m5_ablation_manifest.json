@@ -1,0 +1,78 @@
+{
+  "seed": 2026,
+  "noise_sigma": {
+    "ai_risk_score": 0.2,
+    "ai_price_spike_score": 0.2,
+    "ai_load_pressure_score": 0.2,
+    "ai_renewable_curtailment_score": 0.2,
+    "ai_recommended_storage_bias": 0.3
+  },
+  "targets": [
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\chapter6_ai_semantic_scenarios.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\chapter6_ai_semantic_scenarios_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\chapter6_ai_semantic_scenarios_noisy.csv",
+      "n_rows": 2688,
+      "n_events": 5,
+      "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_negative_price_surplus_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_negative_price_surplus_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_negative_price_surplus_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 6,
+      "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_real_price_week_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_real_price_week_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_real_price_week_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 2,
+      "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v1_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v1_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v1_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 6,
+      "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v2_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v2_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v2_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 6,
+      "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v3_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v3_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v3_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 6,
+      "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v4_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v4_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s5_variants\\v4_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 6,
+      "status": "ok"
+    },
+    {
+      "file": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s7_export_curtailed_ai_semantic.csv",
+      "keyword_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s7_export_curtailed_ai_semantic_keyword.csv",
+      "noisy_out": "D:\\ieee access\\ieee-access\\vpp-ledrl-thesis-system\\data\\processed\\s7_export_curtailed_ai_semantic_noisy.csv",
+      "n_rows": 672,
+      "n_events": 2,
+      "status": "ok"
+    }
+  ],
+  "keyword_source": "app.core.semantic.LocalSemanticEncoder",
+  "noisy_source": "deepseek-chat scores + clipped Gaussian noise"
+}
