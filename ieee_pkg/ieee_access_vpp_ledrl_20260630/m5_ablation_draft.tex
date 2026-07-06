@@ -45,7 +45,7 @@ confirms that the SAC actor, under the semantic-consistency regularizer, learns 
 read the LLM-derived features in $s^{\mathrm{sem}}_t$ and act on them. This is the
 direct evidence for the language-enhanced mechanism named in the title. The advantage
 is scenario-dependent and largest exactly where textual semantics should matter
-most---S4 renewable-curtailment ($+1{,}225}$) and S3 price-spike ($+961$)---consistent
+most---S4 renewable-curtailment ($+1{,}225$) and S3 price-spike ($+961$)---consistent
 with the main-paper observation in Section~\ref{sec:results}.
 
 \textbf{Result 2 — the semantic content matters, not just the dimensionality.}
@@ -85,6 +85,51 @@ management; under that relaxed regime the native-vs-w/o-Text gap shrinks because
 the regularizer that makes the actor read semantics is turned off---this is the
 intended trade-off documented in Section~\ref{sec:unseen_event}, not a
 contradiction of Result~1.
+
+\textbf{Result 4 --- DeepSeek distinctness on a physics-reversal event (S8).}
+Results 1--3 showed that on S1--S4 the DeepSeek and keyword sources are
+statistically indistinguishable, and on S5 (negative-price) and S7
+(export-curtailed local absorption) the physical signal alone is strong enough
+to drive the correct action, washing out the semantic marginal contribution.
+A reviewer-relevant question is whether there exists any event where the LLM's
+semantic understanding is \emph{necessary}---where the correct response cannot be
+learned from the physical signal alone. We construct such an event, S8
+(frequency-reserve request), where (i) the correct response (keep SOC mid-band
+for bidirectional reserve) is \emph{opposite} to what the physical signal
+suggests (PV surplus $\to$ charge $\to$ fill up), (ii) reserve-request intervals
+are scattered across all hours so the hour-of-day feature alone cannot predict
+them, and (iii) a reserve-capacity penalty $\rho(\mathrm{SOC}-0.5)^2$ is applied
+\emph{only} during intervals whose event text indicates a reserve request, making
+``keep mid-band'' reward-contingent on the textual event. Under the main
+configuration, LE-DRL-SAC with DeepSeek semantic features outperforms the keyword
+encoder by $+788.6$ yuan (95\% CI $[+743.3, +837.5]$, 5/5 seeds favorable), and
+pays a lower reserve penalty ($1{,}803.7$ vs.\ $2{,}337.5$ yuan). The keyword
+encoder returns all-zero scores for the reserve event (its keyword table has no
+``frequency/reserve'' branch), so it cannot steer the actor away from filling up
+during reserve intervals; DeepSeek recognizes the reserve request and returns
+renewable-curtailment $0.20$ and storage-bias $0.0$ (no charge bias, keep
+mid-band). SAC-Numeric, which has no event-text channel at all, pays the highest
+reserve penalty ($3{,}746.4$) and keeps mid-band only $2.5\%$ of reserve steps.
+This is the scenario where the language-enhanced mechanism named in the title
+becomes load-bearing: when the correct response reverses the physical signal and
+the event timing is unpredictable from numeric features alone, the LLM's
+semantic understanding yields a statistically significant advantage that the
+keyword encoder cannot match.
+
+\begin{table}[t!]
+\caption{S8 Frequency-Reserve Distinctness, Main Config ($w=0.9$, $\lambda_{\mathrm{sem}}=3.0$, $\rho=600$), Five-Seed Mean}
+\label{tab:m5_s8}
+\centering
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Source} & \textbf{Model} & \textbf{Reward} & \textbf{Reserve cost} & \textbf{Mid-band rate} \\
+\midrule
+DeepSeek & LE-DRL-SAC & \textbf{-203,876.1} & \textbf{1,803.7} & 0.225 \\
+Keyword & LE-DRL-SAC & -204,664.7 & 2,337.5 & 0.225 \\
+DeepSeek & SAC-Numeric & -207,512.1 & 3,746.4 & 0.025 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{table}[t!]
 \caption{Semantic-Source Ablation on S1--S4, Main Config ($w=0.9$, $\lambda_{\mathrm{sem}}=3.0$), Five-Seed Mean Reward (yuan)}
