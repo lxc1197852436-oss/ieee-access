@@ -1,0 +1,10 @@
+{
+  "_note": "REFERENCE ONLY — 2026 data, not used in paper (summer 2026 not fully archived yet). Kept for schema reference. Re-fetch 2025 for the actual validation.",
+  "latitude": 53.110718,
+  "longitude": 13.100189,
+  "utc_offset_seconds": 7200,
+  "timezone": "Europe/Berlin",
+  "hourly_units": {"time": "iso8601", "shortwave_radiation": "W/m²", "temperature_2m": "°C", "cloudcover": "%"},
+  "_period": "2026-06-15 to 2026-07-05, hourly (504 timestamps)",
+  "_source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=53.1&longitude=13.1&start_date=2026-06-15&end_date=2026-07-05&hourly=shortwave_radiation,temperature_2m,cloudcover&timezone=Europe/Berlin"
+}

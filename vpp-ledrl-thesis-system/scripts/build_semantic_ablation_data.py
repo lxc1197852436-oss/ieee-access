@@ -55,6 +55,7 @@ TARGETS = [
     ("chapter6_ai_semantic_scenarios.csv", "chapter6_ai_semantic_scenarios"),
     ("s5_negative_price_surplus_ai_semantic.csv", "s5_negative_price_surplus_ai_semantic"),
     ("s5_real_price_week_ai_semantic.csv", "s5_real_price_week_ai_semantic"),
+    ("s5_real_price_multiweek_ai_semantic.csv", "s5_real_price_multiweek_ai_semantic"),
     ("s5_variants/v1_ai_semantic.csv", "s5_variants/v1_ai_semantic"),
     ("s5_variants/v2_ai_semantic.csv", "s5_variants/v2_ai_semantic"),
     ("s5_variants/v3_ai_semantic.csv", "s5_variants/v3_ai_semantic"),
